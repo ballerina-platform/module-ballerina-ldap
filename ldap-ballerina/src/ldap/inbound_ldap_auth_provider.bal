@@ -28,9 +28,9 @@ public class InboundLdapAuthProvider {
 
     *auth:InboundAuthProvider;
 
-    string instanceId;
-    LdapConnection ldapConnection;
-    LdapConnectionConfig ldapConnectionConfig;
+    final string instanceId;
+    final LdapConnection ldapConnection;
+    final LdapConnectionConfig ldapConnectionConfig;
 
     # Creates an LDAP auth store with the given configurations.
     #
