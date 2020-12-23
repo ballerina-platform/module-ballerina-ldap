@@ -110,7 +110,7 @@ public class InitLdapConnectionContext {
             DirContext dirContext = connectionSource.getContext();
 
             BMap<BString, Object> ldapConnectionRecord = ValueCreator.
-                    createRecordValue(LdapConstants.LDAP_PACKAGE_ID, LdapConstants.LDAP_CONNECTION);
+                    createRecordValue(ModuleUtils.getModule(), LdapConstants.LDAP_CONNECTION);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONFIGURATION, commonLdapConfiguration);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_SOURCE, connectionSource);
             ldapConnectionRecord.addNativeData(LdapConstants.LDAP_CONNECTION_CONTEXT, dirContext);
