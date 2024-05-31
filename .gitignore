@@ -46,3 +46,4 @@ bin
 velocity.log*
 *Ballerina.lock
 examples/**/Dependencies.toml
+Config.toml
