@@ -16,7 +16,7 @@
 
 import ballerina/jballerina.java;
 
-# Consists of APIs to integrate with Avro Schema Registry.
+# Consists of APIs to integrate with LDAP.
 public isolated client class Client {
 
     # Gets invoked to initialize the `connector`.
