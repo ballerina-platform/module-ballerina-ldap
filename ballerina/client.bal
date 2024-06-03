@@ -19,10 +19,10 @@ import ballerina/jballerina.java;
 # Consists of APIs to integrate with LDAP.
 public isolated client class Client {
 
-    # Gets invoked to initialize the `connector`.
+    # Gets invoked to initialize the LDAP client.
     #
-    # + config - The configurations to be used when initializing the `connector`
-    # + return - An error if connector initialization failed
+    # + config - The configurations to be used when initializing the client
+    # + return - An error if client initialization failed
     public isolated function init(*ConnectionConfig config) returns error? {
         self.generateLdapClient(config);
     }
