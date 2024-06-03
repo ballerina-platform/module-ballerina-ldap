@@ -24,6 +24,9 @@ import io.ballerina.runtime.api.values.BError;
 import static io.ballerina.lib.ldap.ModuleUtils.getModule;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 
+/**
+ * This class contains utility methods for the Ballerina LDAP module.
+ */
 public final class Utils {
 
     private Utils() {

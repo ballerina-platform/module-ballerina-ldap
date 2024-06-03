@@ -40,8 +40,11 @@ import java.util.List;
 import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
 import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
 import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
-import static io.ballerina.lib.ldap.ModuleUtils.RESULT_CODE;
+import static io.ballerina.lib.ldap.ModuleUtils.RESULT_STATUS;
 
+/**
+ * This class handles APIs of the LDAP client.
+ */
 public class Ldap {
     private Ldap() {
     }
@@ -92,7 +95,7 @@ public class Ldap {
     private static BMap<BString, Object> generateLdapResponse(LDAPResult ldapResult) {
         BMap<BString, Object> response = ValueCreator.createRecordValue(ModuleUtils.getModule(), LDAP_RESPONSE);
         response.put(StringUtils.fromString(MATCHED_DN), StringUtils.fromString(ldapResult.getMatchedDN()));
-        response.put(StringUtils.fromString(RESULT_CODE),
+        response.put(StringUtils.fromString(RESULT_STATUS),
                 StringUtils.fromString(ldapResult.getResultCode().getName().toUpperCase()));
         response.put(StringUtils.fromString(OPERATION_TYPE),
                 StringUtils.fromString(ldapResult.getOperationType().name()));

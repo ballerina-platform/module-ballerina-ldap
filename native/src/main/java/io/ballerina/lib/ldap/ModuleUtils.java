@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 /**
- * Utility functions of the Schema Registry module.
+ * Utility functions of the LDAP module.
  *
  * @since 0.1.0
  */
@@ -37,7 +37,7 @@ public final class ModuleUtils {
 
     public static final String NATIVE_CLIENT = "client";
     public static final String LDAP_RESPONSE = "LDAPResponse";
-    public static final String RESULT_CODE = "resultCode";
+    public static final String RESULT_STATUS = "resultStatus";
     public static final String MATCHED_DN = "matchedDN";
     public static final String OPERATION_TYPE = "operationType";
 
