@@ -29,15 +29,16 @@ Client ldapClient = check new ({
     password: password
 });
 
+
 @test:Config {}
 public function testUpdateUser() returns error? {
-    UserConfig user = {
-        sn: "User",
-        givenName: "Updated User",
-        displayName: "Updated User"
+    record {} user = {
+        "sn": "User",
+        "givenName": "Updated User",
+        "displayName": "Updated User"
     };
     LDAPResponse val = check ldapClient->modify(userDN, user);
-    test:assertEquals(val.resultCode, SUCCESS);
+    test:assertEquals(val.resultStatus, SUCCESS);
 }
 
 @test:Config {

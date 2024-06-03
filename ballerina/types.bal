@@ -27,37 +27,19 @@ public type ConnectionConfig record {|
     string password;
 |};
 
-public type UserConfig record {
-    string userPrincipalName?;
-    string givenName?;
-    string sn?;
-    string company?;
-    string co?;
-    string streetAddress?;
-    string mobile?;
-    string displayName?;
-    string middleName?;
-    string employeeId?;
-    string extensionAttribute11?;
-    string extensionAttribute10?;
-    string postalCode?;
-    string mail?;
-    string l?;
-    string telephoneNumber?;
-    string department?;
-    string st?;
-    string title?;
-    string distinguishedName?;
-    string manager?;
-};
-
-public type LDAPResponse record {
+# LDAP response type.
+#
+# + matchedDN - The matched DN from the response
+# + resultStatus - The operation status of the response
+# + operationType - The protocol operation type
+public type LDAPResponse record {|
     string matchedDN;
-    ResultCode resultCode;
+    Status resultStatus;
     string operationType;
-};
+|};
 
-public enum ResultCode {
+# Represents the status of the operation
+public enum Status {
     SUCCESS,
     OPERATIONS_ERROR,
     PROTOCOL_ERROR,

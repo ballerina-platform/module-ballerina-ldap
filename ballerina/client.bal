@@ -37,7 +37,7 @@ public isolated client class Client {
     # + entry - The information to update
     # + return - `error` if the operation fails or `()` if successfully updated
     remote isolated function modify(string distinguishedName, record {|anydata...;|} entry)
-        returns LDAPResponse|error = @java:Method {
+        returns LDAPResponse|Error = @java:Method {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 
@@ -47,7 +47,7 @@ public isolated client class Client {
     # + targetType - Default parameter use to infer the user specified type
     # + return - An entry result with the given type or else an error
     remote isolated function getEntry(string distinguishedName, typedesc<anydata> targetType = <>)
-        returns targetType|error = @java:Method {
+        returns targetType|Error = @java:Method {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 }
