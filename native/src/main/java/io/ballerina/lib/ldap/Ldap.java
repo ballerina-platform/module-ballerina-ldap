@@ -21,6 +21,7 @@ package io.ballerina.lib.ldap;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
@@ -36,11 +37,16 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
+import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
+import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
+import static io.ballerina.lib.ldap.ModuleUtils.RESULT_CODE;
+
 public class Ldap {
     private Ldap() {
     }
 
-    public static void generateLdapClient(BObject ldapClient, BMap<BString, Object> config) {
+    public static void initLdapConnection(BObject ldapClient, BMap<BString, Object> config) {
         String hostName = ((BString) config.get(ModuleUtils.HOST_NAME)).getValue();
         int port = Math.toIntExact(config.getIntValue(ModuleUtils.PORT));
         String domainName = ((BString) config.get(ModuleUtils.DOMAIN_NAME)).getValue();
@@ -62,8 +68,8 @@ public class Ldap {
                         .add(new Modification(ModificationType.REPLACE, key.getValue(), entry.get(key).getValue()));
             }
             ModifyRequest modifyRequest = new ModifyRequest(distinguishedName.getValue(), modificationList);
-            ldapConnection.modify(modifyRequest);
-            return null;
+            LDAPResult ldapResult = ldapConnection.modify(modifyRequest);
+            return generateLdapResponse(ldapResult);
         } catch (LDAPException e) {
             return Utils.createError(e.getMessage(), e);
         }
@@ -81,5 +87,15 @@ public class Ldap {
         } catch (LDAPException e) {
             return Utils.createError(e.getMessage(), e);
         }
+    }
+
+    private static BMap<BString, Object> generateLdapResponse(LDAPResult ldapResult) {
+        BMap<BString, Object> response = ValueCreator.createRecordValue(ModuleUtils.getModule(), LDAP_RESPONSE);
+        response.put(StringUtils.fromString(MATCHED_DN), StringUtils.fromString(ldapResult.getMatchedDN()));
+        response.put(StringUtils.fromString(RESULT_CODE),
+                StringUtils.fromString(ldapResult.getResultCode().getName().toUpperCase()));
+        response.put(StringUtils.fromString(OPERATION_TYPE),
+                StringUtils.fromString(ldapResult.getOperationType().name()));
+        return response;
     }
 }

@@ -24,10 +24,10 @@ public isolated client class Client {
     # + config - The configurations to be used when initializing the client
     # + return - An error if client initialization failed
     public isolated function init(*ConnectionConfig config) returns error? {
-        self.generateLdapClient(config);
+        self.initLdapConnection(config);
     }
 
-    private isolated function generateLdapClient(ConnectionConfig config) = @java:Method {
+    private isolated function initLdapConnection(ConnectionConfig config) = @java:Method {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 
@@ -37,7 +37,7 @@ public isolated client class Client {
     # + entry - The information to update
     # + return - `error` if the operation fails or `()` if successfully updated
     remote isolated function modify(string distinguishedName, record {|anydata...;|} entry)
-        returns error? = @java:Method {
+        returns LDAPResponse|error = @java:Method {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 

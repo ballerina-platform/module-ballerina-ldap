@@ -16,7 +16,7 @@
  * under the License.
  */
 
-module io.ballerina.lib.microsoft.ad {
+ module io.ballerina.lib.ldap {
     requires io.ballerina.runtime;
     requires unboundid.ldapsdk;
 }

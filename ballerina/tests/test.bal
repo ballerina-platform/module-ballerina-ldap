@@ -36,7 +36,8 @@ public function testUpdateUser() returns error? {
         givenName: "Updated User",
         displayName: "Updated User"
     };
-    _ = check ldapClient->modify(userDN, user);
+    LDAPResponse val = check ldapClient->modify(userDN, user);
+    test:assertEquals(val.resultCode, SUCCESS);
 }
 
 @test:Config {

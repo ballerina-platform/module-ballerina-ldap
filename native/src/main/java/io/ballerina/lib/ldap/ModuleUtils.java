@@ -36,6 +36,10 @@ public final class ModuleUtils {
     public static final BString PASSWORD = StringUtils.fromString("password");
 
     public static final String NATIVE_CLIENT = "client";
+    public static final String LDAP_RESPONSE = "LDAPResponse";
+    public static final String RESULT_CODE = "resultCode";
+    public static final String MATCHED_DN = "matchedDN";
+    public static final String OPERATION_TYPE = "operationType";
 
     private ModuleUtils() {}
 
