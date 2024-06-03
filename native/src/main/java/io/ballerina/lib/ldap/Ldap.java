@@ -53,13 +53,13 @@ public class Ldap {
         }
     }
 
-    public static Object modify(BObject ldapClient, BString distinguishedName, BMap<BString, BString> user) {
+    public static Object modify(BObject ldapClient, BString distinguishedName, BMap<BString, BString> entry) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(ModuleUtils.NATIVE_CLIENT);
             List<Modification> modificationList = new ArrayList<>();
-            for (BString key: user.getKeys()) {
+            for (BString key: entry.getKeys()) {
                 modificationList
-                        .add(new Modification(ModificationType.REPLACE, key.getValue(), user.get(key).getValue()));
+                        .add(new Modification(ModificationType.REPLACE, key.getValue(), entry.get(key).getValue()));
             }
             ModifyRequest modifyRequest = new ModifyRequest(distinguishedName.getValue(), modificationList);
             ldapConnection.modify(modifyRequest);
@@ -70,7 +70,7 @@ public class Ldap {
     }
 
     public static Object getEntry(BObject ldapClient, BString distinguishedName, BTypedesc typeParam) {
-        BMap entry = ValueCreator.createMapValue();
+        BMap<BString, Object> entry = ValueCreator.createMapValue();
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(ModuleUtils.NATIVE_CLIENT);
             SearchResultEntry userEntry = ldapConnection.getEntry(distinguishedName.getValue());

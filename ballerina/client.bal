@@ -31,11 +31,21 @@ public isolated client class Client {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 
-    remote isolated function modify(string distinguishedName, record {|anydata...;|} user)
+    # Updates information of an entry.
+    # 
+    # + distinguishedName - The distinguished name of the entry
+    # + entry - The information to update
+    # + return - `error` if the operation fails or `()` if successfully updated
+    remote isolated function modify(string distinguishedName, record {|anydata...;|} entry)
         returns error? = @java:Method {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 
+    # Gets information of an entry.
+    # 
+    # + distinguishedName - The distinguished name of the entry
+    # + targetType - Default parameter use to infer the user specified type
+    # + return - An entry result with the given type or else an error
     remote isolated function getEntry(string distinguishedName, typedesc<anydata> targetType = <>)
         returns targetType|error = @java:Method {
         'class: "io.ballerina.lib.ldap.Ldap"
