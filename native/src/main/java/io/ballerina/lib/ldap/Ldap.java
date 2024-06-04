@@ -39,6 +39,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.unboundid.ldap.sdk.ResultCode.NO_SUCH_OBJECT;
 import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
 import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
 import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_GUID;
@@ -90,7 +91,7 @@ public class Ldap {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(ModuleUtils.NATIVE_CLIENT);
             SearchResultEntry userEntry = ldapConnection.getEntry(distinguishedName.getValue());
             if (userEntry == null) {
-                return Utils.createError(ENTRY_NOT_FOUND + distinguishedName, null);
+                return Utils.createError(ENTRY_NOT_FOUND + distinguishedName, new LDAPException(NO_SUCH_OBJECT));
             }
             for (Attribute attribute : userEntry.getAttributes()) {
                 processAttribute(attribute, entry);

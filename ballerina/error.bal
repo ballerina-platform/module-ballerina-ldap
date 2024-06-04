@@ -16,3 +16,12 @@
 
 # Represents any error related to Ballerina LDAP module
 public type Error distinct error;
+
+# The error details type for the Ballerina LDAP module.
+#
+# + resultStatus - The status of the error
+# + message - The error message
+public type ErrorDetails record {|
+    string resultStatus?;
+    string message?;
+|};

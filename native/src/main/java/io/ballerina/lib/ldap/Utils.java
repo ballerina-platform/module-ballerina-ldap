@@ -18,8 +18,14 @@
 
 package io.ballerina.lib.ldap;
 
+import com.unboundid.ldap.sdk.LDAPException;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+
+import java.util.Map;
 
 import static io.ballerina.lib.ldap.ModuleUtils.getModule;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
@@ -33,10 +39,24 @@ public final class Utils {
     }
 
     public static final String ERROR_TYPE = "Error";
+    public static final String ERROR_DETAILS = "ErrorDetails";
+    public static final String RESULT_STATUS = "resultStatus";
+    public static final String ERROR_MESSAGE = "message";
     public static final String ENTRY_NOT_FOUND = "LDAP entry is not found for DN: ";
 
     public static BError createError(String message, Throwable throwable) {
         BError cause = (throwable == null) ? null : ErrorCreator.createError(throwable);
-        return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, null);
+        BMap<BString, Object> errorDetails = getErrorDetails(throwable);
+        return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, errorDetails);
+    }
+
+    private static BMap<BString, Object> getErrorDetails(Throwable throwable) {
+        if (throwable instanceof LDAPException) {
+            String resultStatus = ((LDAPException) throwable).getResultCode().getName();
+            String message = ((LDAPException) throwable).getExceptionMessage();
+            return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS,
+                                                  Map.of(RESULT_STATUS, resultStatus, ERROR_MESSAGE, message));
+        }
+        return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
     }
 }
