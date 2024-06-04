@@ -63,7 +63,7 @@ dependencies {
     jbalTools("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
-    externalJars(group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '7.0.0') {
+    externalJars(group: 'com.unboundid', name: 'unboundid-ldapsdk', version: "${unboundIdLdapVersion}") {
         transitive = false
     }
 }

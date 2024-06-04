@@ -35,7 +35,7 @@ dependencies {
     checkstyle "com.puppycrawl.tools:checkstyle:${checkstylePluginVersion}"
 
     implementation group: 'org.ballerinalang', name: 'ballerina-runtime', version: "${ballerinaLangVersion}"
-    implementation 'com.unboundid:unboundid-ldapsdk:7.0.0'
+    implementation group: 'com.unboundid', name: 'unboundid-ldapsdk', version: "${unboundIdLdapVersion}"
 }
 
 tasks.withType(JavaCompile) {
