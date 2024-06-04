@@ -35,8 +35,8 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
 import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
@@ -68,11 +68,11 @@ public class Ldap {
     public static Object modify(BObject ldapClient, BString distinguishedName, BMap<BString, BString> entry) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(ModuleUtils.NATIVE_CLIENT);
-            List<Modification> modificationList = new ArrayList<>();
-            for (BString key: entry.getKeys()) {
-                modificationList
-                        .add(new Modification(ModificationType.REPLACE, key.getValue(), entry.get(key).getValue()));
-            }
+            List<Modification> modificationList = entry.entrySet().stream()
+                    .filter(e -> e.getValue() != null)
+                    .map(e -> new Modification(ModificationType.REPLACE,
+                                               e.getKey().getValue(), e.getValue().getValue()))
+                    .collect(Collectors.toList());
             ModifyRequest modifyRequest = new ModifyRequest(distinguishedName.getValue(), modificationList);
             LDAPResult ldapResult = ldapConnection.modify(modifyRequest);
             return generateLdapResponse(ldapResult);
