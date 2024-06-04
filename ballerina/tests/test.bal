@@ -75,3 +75,16 @@ public function testGetInvalidUser() returns error? {
     UserConfig|Error value = ldapClient->getEntry("CN=Invalid User,OU=People,DC=ad,DC=windows");
     test:assertTrue(value is Error);
 }
+
+@test:Config {
+    groups: ["qq"]
+}
+public function testUpdateUserWithNullValues() returns error? {
+    string distinguishedName = "CN=John Doe,OU=People,DC=ad,DC=windows";
+    record {} user = {
+        "employeeId":"30896","givenName":"John","sn":"Doe","company":"Grocery Co. USA","co":null,"streetAddress":null,"mobile":null,"displayName":"John Doe","middleName":null,"mail":null,"l":null,"telephoneNumber":null,"department":"Produce","st":null,"title":"Clerk"
+    };
+    LDAPResponse val = check ldapClient->modify(distinguishedName, user);
+    test:assertEquals(val.resultStatus, SUCCESS);
+}
+
