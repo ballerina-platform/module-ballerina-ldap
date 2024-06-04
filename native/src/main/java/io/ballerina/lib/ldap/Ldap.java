@@ -26,6 +26,7 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.util.Base64;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.ValueUtils;
@@ -90,7 +91,13 @@ public class Ldap {
                 return Utils.createError(ENTRY_NOT_FOUND + distinguishedName, null);
             }
             for (Attribute attribute: userEntry.getAttributes()) {
-                entry.put(StringUtils.fromString(attribute.getName()), StringUtils.fromString(attribute.getValue()));
+                if (attribute.needsBase64Encoding()) {
+                    entry.put(StringUtils.fromString(attribute.getName()),
+                              StringUtils.fromString(Base64.encode(attribute.getValueByteArray())));
+                } else {
+                    entry.put(StringUtils.fromString(attribute.getName()),
+                              StringUtils.fromString(attribute.getValue()));
+                }
             }
             return ValueUtils.convert(entry, typeParam.getDescribingType());
         } catch (LDAPException e) {

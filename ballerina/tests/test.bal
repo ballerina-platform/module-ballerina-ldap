@@ -76,9 +76,7 @@ public function testGetInvalidUser() returns error? {
     test:assertTrue(value is Error);
 }
 
-@test:Config {
-    groups: ["qq"]
-}
+@test:Config {}
 public function testUpdateUserWithNullValues() returns error? {
     string distinguishedName = "CN=John Doe,OU=People,DC=ad,DC=windows";
     record {} user = {
