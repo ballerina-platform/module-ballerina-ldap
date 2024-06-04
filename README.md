@@ -18,7 +18,7 @@ Updates information of an entry.
 import ballerina/ldap;
 
 public function main() returns error? {
-   ldap:UserConfig user = {
+   anydata user = {
       sn: "User",
       givenName: "Updated User",
       displayName: "Updated User"
@@ -35,6 +35,6 @@ Gets information of an entry
 import ballerina/ldap;
 
 public function main() returns error? {
-   ldap:UserConfig value = check ldapClient->getEntry(userDN);
+   anydata value = check ldapClient->getEntry(userDN);
 }
 ```
