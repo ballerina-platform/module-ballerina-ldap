@@ -85,4 +85,3 @@ public function testUpdateUserWithNullValues() returns error? {
     LDAPResponse val = check ldapClient->modify(distinguishedName, user);
     test:assertEquals(val.resultStatus, SUCCESS);
 }
-
