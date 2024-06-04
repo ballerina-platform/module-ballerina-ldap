@@ -29,7 +29,6 @@ Client ldapClient = check new ({
     password: password
 });
 
-
 @test:Config {}
 public function testUpdateUser() returns error? {
     record {} user = {
@@ -47,4 +46,32 @@ public function testUpdateUser() returns error? {
 public function testGetUser() returns error? {
     UserConfig value = check ldapClient->getEntry(userDN);
     test:assertEquals(value?.givenName, "Updated User");
+}
+
+@test:Config {}
+public function testInvalidClient() returns error? {
+    Client|Error ldapClient = new ({
+        hostName: "111.111.11.111",
+        port: port,
+        domainName: domainName,
+        password: password
+    });
+    test:assertTrue(ldapClient is Error);
+}
+
+@test:Config {}
+public function testInvalidDomainInClient() returns error? {
+    Client|Error ldapClient = new ({
+        hostName: hostName,
+        port: port,
+        domainName: "invalid@ad.invalid",
+        password: password
+    });
+    test:assertTrue(ldapClient is Error);
+}
+
+@test:Config {}
+public function testGetInvalidUser() returns error? {
+    UserConfig|Error value = ldapClient->getEntry("CN=Invalid User,OU=People,DC=ad,DC=windows");
+    test:assertTrue(value is Error);
 }
