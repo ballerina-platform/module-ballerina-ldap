@@ -1,5 +1,4 @@
-Ballerina LDAP Connector
-===================
+## Overview
 
 LDAP (Lightweight Directory Access Protocol) is an vendor-neutral software protocol for accessing and maintaining distributed directory information services. It allows users to locate organizations, individuals, and other resources such as files and devices in a network. LDAP is used in various applications for directory-based authentication and authorization.
 
@@ -18,12 +17,12 @@ Updates information of an entry.
 import ballerina/ldap;
 
 public function main() returns error? {
-   anydata user = {
-      sn: "User",
-      givenName: "Updated User",
-      displayName: "Updated User"
-   };
-   _ = check ldapClient->modify(userDN, user);
+    anydata user = {
+        sn: "User",
+        givenName: "Updated User",
+        displayName: "Updated User"
+    };
+    _ = check ldapClient->modify(userDN, user);
 }
 ```
 
@@ -35,6 +34,6 @@ Gets information of an entry
 import ballerina/ldap;
 
 public function main() returns error? {
-   anydata value = check ldapClient->getEntry(userDN);
+    anydata value = check ldapClient->getEntry(userDN);
 }
 ```
