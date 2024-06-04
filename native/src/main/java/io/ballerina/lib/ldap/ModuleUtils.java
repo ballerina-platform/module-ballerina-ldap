@@ -41,6 +41,9 @@ public final class ModuleUtils {
     public static final String MATCHED_DN = "matchedDN";
     public static final String OPERATION_TYPE = "operationType";
 
+    public static final String OBJECT_GUID = "objectGUID";
+    public static final String OBJECT_SID = "objectSid";
+
     private ModuleUtils() {}
 
     private static Module ldapModule = null;

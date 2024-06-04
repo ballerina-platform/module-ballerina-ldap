@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
 import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
+import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_GUID;
+import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_SID;
 import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
 import static io.ballerina.lib.ldap.ModuleUtils.RESULT_STATUS;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
@@ -90,19 +92,32 @@ public class Ldap {
             if (userEntry == null) {
                 return Utils.createError(ENTRY_NOT_FOUND + distinguishedName, null);
             }
-            for (Attribute attribute: userEntry.getAttributes()) {
-                if (attribute.needsBase64Encoding()) {
-                    entry.put(StringUtils.fromString(attribute.getName()),
-                              StringUtils.fromString(Base64.encode(attribute.getValueByteArray())));
-                } else {
-                    entry.put(StringUtils.fromString(attribute.getName()),
-                              StringUtils.fromString(attribute.getValue()));
-                }
+            for (Attribute attribute : userEntry.getAttributes()) {
+                processAttribute(attribute, entry);
             }
             return ValueUtils.convert(entry, typeParam.getDescribingType());
         } catch (LDAPException e) {
             return Utils.createError(e.getMessage(), e);
         }
+    }
+
+    private static void processAttribute(Attribute attribute, BMap<BString, Object> entry) {
+        BString attributeName = StringUtils.fromString(attribute.getName());
+        if (attribute.needsBase64Encoding()) {
+            String readableString = encodeAttributeValue(attribute);
+            entry.put(attributeName, StringUtils.fromString(readableString));
+        } else {
+            entry.put(attributeName, StringUtils.fromString(attribute.getValue()));
+        }
+    }
+
+    private static String encodeAttributeValue(Attribute attribute) {
+        byte[] valueBytes = attribute.getValueByteArray();
+        return switch (attribute.getName()) {
+            case OBJECT_GUID -> convertObjectGUIDToString(valueBytes);
+            case OBJECT_SID -> convertObjectSidToString(valueBytes);
+            default -> Base64.encode(valueBytes);
+        };
     }
 
     private static BMap<BString, Object> generateLdapResponse(LDAPResult ldapResult) {
@@ -113,5 +128,75 @@ public class Ldap {
         response.put(StringUtils.fromString(OPERATION_TYPE),
                 StringUtils.fromString(ldapResult.getOperationType().name()));
         return response;
+    }
+
+    public static String convertObjectSidToString(byte[] objectSid) {
+        int offset, size;
+        if (objectSid[0] != 1) {
+            throw new IllegalArgumentException("objectSid revision must be 1");
+        }
+        StringBuilder stringSidBuilder = new StringBuilder("S-1-");
+        int subAuthorityCount = objectSid[1] & 0xFF;
+        long identifierAuthority = 0;
+        offset = 2;
+        size = 6;
+        for (int i = 0; i < size; i++) {
+            identifierAuthority |= (long) (objectSid[offset + i] & 0xFF) << (8 * (size - 1 - i));
+        }
+        if (identifierAuthority < Math.pow(2, 32)) {
+            stringSidBuilder.append(identifierAuthority);
+        } else {
+            stringSidBuilder.append("0x").append(
+                    Long.toHexString(identifierAuthority).toUpperCase());
+        }
+        offset = 8;
+        size = 4;
+        for (int i = 0; i < subAuthorityCount; i++, offset += size) {
+            long subAuthority = 0;
+            for (int j = 0; j < size; j++) {
+                subAuthority |= (long) (objectSid[offset + j] & 0xFF) << (8 * j);
+            }
+            stringSidBuilder.append("-").append(subAuthority);
+        }
+
+        return stringSidBuilder.toString();
+    }
+
+    public static String convertObjectGUIDToString(byte[] objectGUID) {
+        StringBuilder displayStr = new StringBuilder();
+        displayStr.append(prefixZeros((int) objectGUID[3] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[2] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[1] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[0] & 0xFF));
+        displayStr.append("-");
+        displayStr.append(prefixZeros((int) objectGUID[5] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[4] & 0xFF));
+        displayStr.append("-");
+        displayStr.append(prefixZeros((int) objectGUID[7] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[6] & 0xFF));
+        displayStr.append("-");
+        displayStr.append(prefixZeros((int) objectGUID[8] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[9] & 0xFF));
+        displayStr.append("-");
+        displayStr.append(prefixZeros((int) objectGUID[10] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[11] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[12] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[13] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[14] & 0xFF));
+        displayStr.append(prefixZeros((int) objectGUID[15] & 0xFF));
+        return displayStr.toString();
+    }
+
+
+    private static String prefixZeros(int value) {
+        if (value <= 0xF) {
+            StringBuilder sb = new StringBuilder("0");
+            sb.append(Integer.toHexString(value));
+
+            return sb.toString();
+
+        } else {
+            return Integer.toHexString(value);
+        }
     }
 }
