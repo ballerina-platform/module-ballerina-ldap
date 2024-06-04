@@ -23,11 +23,11 @@ public isolated client class Client {
     #
     # + config - The configurations to be used when initializing the client
     # + return - An error if client initialization failed
-    public isolated function init(*ConnectionConfig config) returns error? {
-        self.initLdapConnection(config);
+    public isolated function init(*ConnectionConfig config) returns Error? {
+        check self.initLdapConnection(config);
     }
 
-    private isolated function initLdapConnection(ConnectionConfig config) = @java:Method {
+    private isolated function initLdapConnection(ConnectionConfig config) returns Error? = @java:Method {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 

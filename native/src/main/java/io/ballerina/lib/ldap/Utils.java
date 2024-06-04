@@ -33,9 +33,10 @@ public final class Utils {
     }
 
     public static final String ERROR_TYPE = "Error";
+    public static final String ENTRY_NOT_FOUND = "LDAP entry is not found for DN: ";
 
     public static BError createError(String message, Throwable throwable) {
-        BError cause = ErrorCreator.createError(throwable);
+        BError cause = (throwable == null) ? null : ErrorCreator.createError(throwable);
         return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, null);
     }
 }

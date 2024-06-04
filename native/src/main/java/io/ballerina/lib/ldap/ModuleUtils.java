@@ -52,5 +52,4 @@ public final class ModuleUtils {
     public static void setModule(Environment env) {
         ldapModule = env.getCurrentModule();
     }
-
 }

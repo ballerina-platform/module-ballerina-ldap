@@ -14,5 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents any error related to Ballerina Avro module
+# Represents any error related to Ballerina LDAP module
 public type Error distinct error;

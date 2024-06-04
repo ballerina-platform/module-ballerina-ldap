@@ -29,6 +29,7 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.ValueUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -41,6 +42,7 @@ import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
 import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
 import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
 import static io.ballerina.lib.ldap.ModuleUtils.RESULT_STATUS;
+import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
 
 /**
  * This class handles APIs of the LDAP client.
@@ -49,7 +51,7 @@ public class Ldap {
     private Ldap() {
     }
 
-    public static void initLdapConnection(BObject ldapClient, BMap<BString, Object> config) {
+    public static BError initLdapConnection(BObject ldapClient, BMap<BString, Object> config) {
         String hostName = ((BString) config.get(ModuleUtils.HOST_NAME)).getValue();
         int port = Math.toIntExact(config.getIntValue(ModuleUtils.PORT));
         String domainName = ((BString) config.get(ModuleUtils.DOMAIN_NAME)).getValue();
@@ -58,8 +60,9 @@ public class Ldap {
             LDAPConnection ldapConnection = new LDAPConnection(hostName, port, domainName, password);
             ldapClient.addNativeData(ModuleUtils.NATIVE_CLIENT, ldapConnection);
         } catch (LDAPException e) {
-            throw new RuntimeException(e);
+            return Utils.createError(e.getMessage(), e);
         }
+        return null;
     }
 
     public static Object modify(BObject ldapClient, BString distinguishedName, BMap<BString, BString> entry) {
@@ -83,6 +86,9 @@ public class Ldap {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(ModuleUtils.NATIVE_CLIENT);
             SearchResultEntry userEntry = ldapConnection.getEntry(distinguishedName.getValue());
+            if (userEntry == null) {
+                return Utils.createError(ENTRY_NOT_FOUND + distinguishedName, null);
+            }
             for (Attribute attribute: userEntry.getAttributes()) {
                 entry.put(StringUtils.fromString(attribute.getName()), StringUtils.fromString(attribute.getValue()));
             }
