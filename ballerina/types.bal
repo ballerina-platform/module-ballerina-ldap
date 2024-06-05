@@ -38,6 +38,45 @@ public type LDAPResponse record {|
     string operationType;
 |};
 
+
+# A record for an entry that represents a person.
+#
+# + objectClass - object class of the person
+# + sn - surname of the person
+# + cn - common name of the person
+# + userPassword - password of the person
+# + telephoneNumber - telephone number of the person
+public type Person record {
+    string|string[]|ObjectClass|ObjectClass[] objectClass?;
+    string sn;
+    string cn;
+    string userPassword?;
+    string telephoneNumber?;
+};
+
+enum ObjectClass {
+    top,
+    person,
+    organizationalPerson,
+    inetOrgPerson,
+    organizationalRole,
+    groupOfNames,
+    groupOfUniqueNames,
+    country,
+    locality,
+    organization,
+    organizationalUnit,
+    domainComponent,
+    dcObject
+};
+
+# A record for an entry to contain domain component information
+#
+# + dc - name of the domain component
+public type DcObject record {
+    string dc;
+};
+
 # Represents the status of the operation
 public enum Status {
     SUCCESS,
