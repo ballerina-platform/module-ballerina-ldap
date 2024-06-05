@@ -43,6 +43,7 @@ public final class Utils {
     public static final String RESULT_STATUS = "resultStatus";
     public static final String ERROR_MESSAGE = "message";
     public static final String ENTRY_NOT_FOUND = "LDAP entry is not found for DN: ";
+    public static final String SID_REVISION_ERROR = "objectSid revision must be 1";
 
     public static BError createError(String message, Throwable throwable) {
         BError cause = (throwable == null) ? null : ErrorCreator.createError(throwable);
@@ -52,7 +53,7 @@ public final class Utils {
 
     private static BMap<BString, Object> getErrorDetails(Throwable throwable) {
         if (throwable instanceof LDAPException) {
-            String resultStatus = ((LDAPException) throwable).getResultCode().getName();
+            String resultStatus = ((LDAPException) throwable).getResultCode().getName().toUpperCase();
             String message = ((LDAPException) throwable).getExceptionMessage();
             return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS,
                                                   Map.of(RESULT_STATUS, resultStatus, ERROR_MESSAGE, message));

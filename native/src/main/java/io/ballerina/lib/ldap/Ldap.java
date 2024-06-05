@@ -18,7 +18,10 @@
 
 package io.ballerina.lib.ldap;
 
+import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.DeleteRequest;
+import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
@@ -30,6 +33,7 @@ import com.unboundid.util.Base64;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.ValueUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -42,11 +46,14 @@ import java.util.stream.Collectors;
 import static com.unboundid.ldap.sdk.ResultCode.NO_SUCH_OBJECT;
 import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
 import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
+import static io.ballerina.lib.ldap.ModuleUtils.NATIVE_CLIENT;
+import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_CLASS;
 import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_GUID;
 import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_SID;
 import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
 import static io.ballerina.lib.ldap.ModuleUtils.RESULT_STATUS;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
+import static io.ballerina.lib.ldap.Utils.SID_REVISION_ERROR;
 
 /**
  * This class handles APIs of the LDAP client.
@@ -62,7 +69,7 @@ public class Ldap {
         String password = ((BString) config.get(ModuleUtils.PASSWORD)).getValue();
         try {
             LDAPConnection ldapConnection = new LDAPConnection(hostName, port, domainName, password);
-            ldapClient.addNativeData(ModuleUtils.NATIVE_CLIENT, ldapConnection);
+            ldapClient.addNativeData(NATIVE_CLIENT, ldapConnection);
         } catch (LDAPException e) {
             return Utils.createError(e.getMessage(), e);
         }
@@ -71,7 +78,7 @@ public class Ldap {
 
     public static Object modify(BObject ldapClient, BString distinguishedName, BMap<BString, BString> entry) {
         try {
-            LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(ModuleUtils.NATIVE_CLIENT);
+            LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
             List<Modification> modificationList = entry.entrySet().stream()
                     .filter(e -> e.getValue() != null)
                     .map(e -> new Modification(ModificationType.REPLACE,
@@ -85,10 +92,38 @@ public class Ldap {
         }
     }
 
+    public static Object add(BObject ldapClient, BString distinguishedName, BMap<BString, Object> entry) {
+        try {
+            LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
+            Entry newEntry = new Entry(distinguishedName.getValue());
+            for (BString key: entry.getKeys()) {
+                if (key.getValue().equals(OBJECT_CLASS)) {
+                    newEntry.addAttribute(key.getValue(), ((BArray) entry.get(key)).getStringArray());
+                } else {
+                    newEntry.addAttribute(key.getValue(), entry.get(key).toString());
+                }
+            }
+            LDAPResult ldapResult = ldapConnection.add(new AddRequest(newEntry));
+            return generateLdapResponse(ldapResult);
+        } catch (Exception e) {
+            return Utils.createError(e.getMessage(), e);
+        }
+    }
+
+    public static Object delete(BObject ldapClient, BString distinguishedName) {
+        try {
+            LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
+            LDAPResult ldapResult = ldapConnection.delete(new DeleteRequest(distinguishedName.getValue()));
+            return generateLdapResponse(ldapResult);
+        } catch (Exception e) {
+            return Utils.createError(e.getMessage(), e);
+        }
+    }
+
     public static Object getEntry(BObject ldapClient, BString distinguishedName, BTypedesc typeParam) {
         BMap<BString, Object> entry = ValueCreator.createMapValue();
         try {
-            LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(ModuleUtils.NATIVE_CLIENT);
+            LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
             SearchResultEntry userEntry = ldapConnection.getEntry(distinguishedName.getValue());
             if (userEntry == null) {
                 return Utils.createError(ENTRY_NOT_FOUND + distinguishedName, new LDAPException(NO_SUCH_OBJECT));
@@ -134,7 +169,7 @@ public class Ldap {
     public static String convertObjectSidToString(byte[] objectSid) {
         int offset, size;
         if (objectSid[0] != 1) {
-            throw new IllegalArgumentException("objectSid revision must be 1");
+            throw new IllegalArgumentException(SID_REVISION_ERROR);
         }
         StringBuilder stringSidBuilder = new StringBuilder("S-1-");
         int subAuthorityCount = objectSid[1] & 0xFF;

@@ -43,6 +43,7 @@ public final class ModuleUtils {
 
     public static final String OBJECT_GUID = "objectGUID";
     public static final String OBJECT_SID = "objectSid";
+    public static final String OBJECT_CLASS = "objectClass";
 
     private ModuleUtils() {}
 

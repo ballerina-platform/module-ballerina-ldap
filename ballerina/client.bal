@@ -31,6 +31,24 @@ public isolated client class Client {
         'class: "io.ballerina.lib.ldap.Ldap"
     } external;
 
+    # Creates an entry in a directory server.
+    #
+    # + distinguishedName - The distinguished name of the entry
+    # + entry - The information to add
+    # + return - `error` if the operation fails or `()` if successfully updated
+    remote isolated function add(string distinguishedName, record {|anydata...;|} entry)
+        returns LDAPResponse|Error = @java:Method {
+        'class: "io.ballerina.lib.ldap.Ldap"
+    } external;
+
+    # Removes an entry in a directory server.
+    #
+    # + distinguishedName - The distinguished name of the entry to remove
+    # + return - `error` if the operation fails or `()` if successfully updated
+    remote isolated function delete(string distinguishedName) returns LDAPResponse|Error = @java:Method {
+        'class: "io.ballerina.lib.ldap.Ldap"
+    } external;
+
     # Updates information of an entry.
     # 
     # + distinguishedName - The distinguished name of the entry
