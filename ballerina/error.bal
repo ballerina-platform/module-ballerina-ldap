@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents any error related to Ballerina LDAP module
-public type Error distinct error;
+public type Error distinct error<ErrorDetails>;
 
 # The error details type for the Ballerina LDAP module.
 #
