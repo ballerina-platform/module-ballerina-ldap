@@ -6,8 +6,31 @@ The Ballerina LDAP module provides the capability to efficiently connect, authen
 
 ### APIs associated with LDAP
 
+- **add**: Creates an entry in a directory server.
 - **modify**: Updates information of an entry in a directory server.
 - **getEntry**: Gets information of an entry in a directory server.
+- **delete**: Removes an entry in a directory server.
+
+#### `add` API
+
+Creates an entry in a directory server.
+
+```ballerina
+import ballerina/ldap;
+
+public function main() returns error? {
+    anydata user = {
+        objectClass: ["user", "organizationalPerson", "person", "top"],
+        sn: "New User",
+        cn: "New User",
+        givenName: "New User",
+        displayName: "New User",
+        userPrincipalName: "newuser@ad.windows",
+        userAccountControl: "544"
+    };
+    ldap:LDAPResponse val = check ldapClient->add(userDN, user);
+}
+```
 
 #### `modify` API
 
@@ -35,5 +58,17 @@ import ballerina/ldap;
 
 public function main() returns error? {
     anydata value = check ldapClient->getEntry(userDN);
+}
+```
+
+#### `delete` API
+
+Removes an entry in a directory server.
+
+```ballerina
+import ballerina/ldap;
+
+public function main() returns error? {
+    ldap:LDAPResponse val = check ldapClient->delete(userDN);
 }
 ```
