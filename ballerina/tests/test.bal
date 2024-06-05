@@ -30,6 +30,49 @@ Client ldapClient = check new ({
 });
 
 @test:Config {}
+public function testAddUser() returns error? {
+    UserConfig user = {
+        objectClass: ["user", "organizationalPerson", "person", "top"],
+        sn: "New User",
+        cn: "New User",
+        givenName: "New User",
+        displayName: "New User",
+        userPrincipalName: "newuser@ad.windows",
+        userAccountControl: "544"
+    };
+    LDAPResponse val = check ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
+    test:assertEquals(val.resultStatus, SUCCESS);
+}
+
+@test:Config {
+    dependsOn: [testAddAlreadyExistingUser]
+}
+public function testDeleteUser() returns error? {
+    LDAPResponse val = check ldapClient->delete("CN=New User,OU=People,DC=ad,DC=windows");
+    test:assertEquals(val.resultStatus, SUCCESS);
+}
+
+@test:Config {
+    dependsOn: [testAddUser]
+}
+public function testAddAlreadyExistingUser() returns error? {
+    UserConfig user = {
+        objectClass: ["user", "organizationalPerson", "person", "top"],
+        sn: "New User",
+        cn: "New User",
+        givenName: "New User",
+        displayName: "New User",
+        userPrincipalName: "newuser@ad.windows"
+    };
+    LDAPResponse|Error val = ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
+    test:assertTrue(val is Error);
+    if val is Error {
+        ErrorDetails errorDetails = val.detail();
+        test:assertEquals(errorDetails.resultStatus, "ENTRY ALREADY EXISTS");
+    }
+}
+
+@test:Config {}
 public function testUpdateUser() returns error? {
     record {} user = {
         "sn": "User",
@@ -80,7 +123,21 @@ public function testGetInvalidUser() returns error? {
 public function testUpdateUserWithNullValues() returns error? {
     string distinguishedName = "CN=John Doe,OU=People,DC=ad,DC=windows";
     record {} user = {
-        "employeeId":"30896","givenName":"John","sn":"Doe","company":"Grocery Co. USA","co":null,"streetAddress":null,"mobile":null,"displayName":"John Doe","middleName":null,"mail":null,"l":null,"telephoneNumber":null,"department":"Produce","st":null,"title":"Clerk"
+        "employeeId":"30896",
+        "givenName":"John",
+        "sn":"Doe",
+        "company":"Grocery Co. USA",
+        "co":null,
+        "streetAddress":null,
+        "mobile":null,
+        "displayName":"John Doe",
+        "middleName":null,
+        "mail":null,
+        "l":null,
+        "telephoneNumber":null,
+        "department":"Produce",
+        "st":null,
+        "title":"Clerk"
     };
     LDAPResponse val = check ldapClient->modify(distinguishedName, user);
     test:assertEquals(val.resultStatus, SUCCESS);

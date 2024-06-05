@@ -15,9 +15,9 @@
 // under the License.
 
 type UserConfig record {
+    *Person;
     string userPrincipalName?;
     string givenName?;
-    string sn?;
     string company?;
     string co?;
     string streetAddress?;
@@ -36,4 +36,5 @@ type UserConfig record {
     string title?;
     string distinguishedName?;
     string manager?;
+    string userAccountControl?;
 };
