@@ -29,35 +29,62 @@ Client ldapClient = check new ({
     password: password
 });
 
-@test:Config {}
+@test:Config {
+}
 public function testAddUser() returns error? {
     UserConfig user = {
-        objectClass: ["user", "organizationalPerson", "person", "top"],
-        sn: "New User",
-        cn: "New User",
-        givenName: "New User",
-        displayName: "New User",
-        userPrincipalName: "newuser@ad.windows",
+        "objectClass": ["user", organizationalPerson, "person", "top"],
+        sn: "User",
+        cn: "User",
+        givenName: "User",
+        displayName: "User",
+        userPrincipalName: "user@ad.windows",
         userAccountControl: "544"
     };
-    LDAPResponse val = check ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultStatus, SUCCESS);
-}
-
-@test:Config {
-    dependsOn: [testAddAlreadyExistingUser]
-}
-public function testDeleteUser() returns error? {
-    LDAPResponse val = check ldapClient->delete("CN=New User,OU=People,DC=ad,DC=windows");
+    LDAPResponse val = check ldapClient->add("CN=User,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultStatus, SUCCESS);
 }
 
 @test:Config {
     dependsOn: [testAddUser]
 }
+public function testAddUserWithManager() returns error? {
+    record {} user = {
+        "objectClass": "user",
+        "sn": "New User",
+        "cn": "New User",
+        "givenName": "New User",
+        "displayName": "New User",
+        "userPrincipalName": "newuser@ad.windows",
+        "userAccountControl": "544",
+        "manager": "CN=User,OU=People,DC=ad,DC=windows"
+    };
+    LDAPResponse addResult = check ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
+    test:assertEquals(addResult.resultStatus, SUCCESS);
+}
+
+@test:Config {
+    dependsOn: [testGetUser]
+}
+public function testDeleteUserHavingManager() returns error? {
+    LDAPResponse val = check ldapClient->delete("CN=New User,OU=People,DC=ad,DC=windows");
+    test:assertEquals(val.resultStatus, SUCCESS);
+}
+
+@test:Config {
+    dependsOn: [testDeleteUserHavingManager]
+}
+public function testDeleteUser() returns error? {
+    LDAPResponse val = check ldapClient->delete("CN=User,OU=People,DC=ad,DC=windows");
+    test:assertEquals(val.resultStatus, SUCCESS);
+}
+
+@test:Config {
+    dependsOn: [testAddUserWithManager]
+}
 public function testAddAlreadyExistingUser() returns error? {
     UserConfig user = {
-        objectClass: ["user", "organizationalPerson", "person", "top"],
+        objectClass: "user",
         sn: "New User",
         cn: "New User",
         givenName: "New User",
@@ -72,19 +99,22 @@ public function testAddAlreadyExistingUser() returns error? {
     }
 }
 
-@test:Config {}
+@test:Config {
+    dependsOn: [testAddAlreadyExistingUser]
+}
 public function testUpdateUser() returns error? {
     record {} user = {
         "sn": "User",
         "givenName": "Updated User",
-        "displayName": "Updated User"
+        "displayName": "Updated User",
+        "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
     LDAPResponse val = check ldapClient->modify(userDN, user);
     test:assertEquals(val.resultStatus, SUCCESS);
 }
 
 @test:Config {
-    dependsOn: [testUpdateUser]
+    dependsOn: [testUpdateUserWithNullValues]
 }
 public function testGetUser() returns error? {
     UserConfig value = check ldapClient->getEntry(userDN);
@@ -119,26 +149,28 @@ public function testGetInvalidUser() returns error? {
     test:assertTrue(value is Error);
 }
 
-@test:Config {}
+@test:Config {
+    dependsOn: [testUpdateUser]
+}
 public function testUpdateUserWithNullValues() returns error? {
-    string distinguishedName = "CN=John Doe,OU=People,DC=ad,DC=windows";
     record {} user = {
-        "employeeId":"30896",
-        "givenName":"John",
-        "sn":"Doe",
+        "employeeID":"30896",
+        "givenName": "Updated User",
+        "sn": "User",
         "company":"Grocery Co. USA",
         "co":null,
         "streetAddress":null,
         "mobile":null,
-        "displayName":"John Doe",
+        "displayName": "Updated User",
         "middleName":null,
         "mail":null,
         "l":null,
         "telephoneNumber":null,
         "department":"Produce",
         "st":null,
-        "title":"Clerk"
+        "title":"Clerk",
+        "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
-    LDAPResponse val = check ldapClient->modify(distinguishedName, user);
+    LDAPResponse val = check ldapClient->modify(userDN, user);
     test:assertEquals(val.resultStatus, SUCCESS);
 }

@@ -47,7 +47,7 @@ public type LDAPResponse record {|
 # + userPassword - password of the person
 # + telephoneNumber - telephone number of the person
 public type Person record {
-    string|string[]|ObjectClass|ObjectClass[] objectClass?;
+    string|string[]|ObjectClass|ObjectClass[] objectClass;
     string sn;
     string cn;
     string userPassword?;
