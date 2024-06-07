@@ -8,8 +8,8 @@ The Ballerina LDAP module provides the capability to efficiently connect, authen
 
 - **add**: Creates an entry in a directory server.
 - **modify**: Updates information of an entry in a directory server.
-- **getEntry**: Gets information of an entry in a directory server.
-- **delete**: Removes an entry in a directory server.
+- **getEntry**: Gets information about an entry in a directory server.
+- **delete**: Removes an entry from a directory server.
 
 #### `add` API
 
@@ -20,13 +20,13 @@ import ballerina/ldap;
 
 public function main() returns error? {
     anydata user = {
-        objectClass: ["user", "organizationalPerson", "person", "top"],
-        sn: "New User",
-        cn: "New User",
-        givenName: "New User",
-        displayName: "New User",
-        userPrincipalName: "newuser@ad.windows",
-        userAccountControl: "544"
+        "objectClass": "user",
+        "sn": "New User",
+        "cn": "New User",
+        "givenName": "New User",
+        "displayName": "New User",
+        "userPrincipalName": "newuser@ad.windows",
+        "userAccountControl": "544"
     };
     ldap:LDAPResponse val = check ldapClient->add(userDN, user);
 }
@@ -41,9 +41,9 @@ import ballerina/ldap;
 
 public function main() returns error? {
     anydata user = {
-        sn: "User",
-        givenName: "Updated User",
-        displayName: "Updated User"
+        "sn": "User",
+        "givenName": "Updated User",
+        "displayName": "Updated User"
     };
     _ = check ldapClient->modify(userDN, user);
 }
@@ -51,7 +51,7 @@ public function main() returns error? {
 
 #### `getEntry` API
 
-Gets information of an entry
+Gets information about an entry in a directory server.
 
 ```ballerina
 import ballerina/ldap;
@@ -63,7 +63,7 @@ public function main() returns error? {
 
 #### `delete` API
 
-Removes an entry in a directory server.
+Removes an entry from a directory server.
 
 ```ballerina
 import ballerina/ldap;

@@ -9,8 +9,8 @@ The Ballerina LDAP module provides the capability to efficiently connect, authen
 
 - **add**: Creates an entry in a directory server.
 - **modify**: Updates information of an entry in a directory server.
-- **getEntry**: Gets information of an entry in a directory server.
-- **delete**: Removes an entry in a directory server.
+- **getEntry**: Gets information about an entry in a directory server.
+- **delete**: Removes an entry from a directory server.
 
 #### `add` API
 
@@ -52,7 +52,7 @@ public function main() returns error? {
 
 #### `getEntry` API
 
-Gets information of an entry
+Gets information about an entry in a directory server.
 
 ```ballerina
 import ballerina/ldap;
@@ -64,7 +64,7 @@ public function main() returns error? {
 
 #### `delete` API
 
-Removes an entry in a directory server.
+Removes an entry from a directory server.
 
 ```ballerina
 import ballerina/ldap;
