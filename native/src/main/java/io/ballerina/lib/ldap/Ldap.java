@@ -30,8 +30,10 @@ import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.util.Base64;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -40,14 +42,15 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.unboundid.ldap.sdk.ResultCode.NO_SUCH_OBJECT;
 import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
 import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
 import static io.ballerina.lib.ldap.ModuleUtils.NATIVE_CLIENT;
-import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_CLASS;
 import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_GUID;
 import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_SID;
 import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
@@ -79,12 +82,7 @@ public class Ldap {
     public static Object modify(BObject ldapClient, BString distinguishedName, BMap<BString, BString> entry) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            List<Modification> modificationList = entry.entrySet().stream()
-                    .filter(e -> e.getValue() != null)
-                    .map(e -> new Modification(ModificationType.REPLACE,
-                                               e.getKey().getValue(), e.getValue().getValue()))
-                    .collect(Collectors.toList());
-            ModifyRequest modifyRequest = new ModifyRequest(distinguishedName.getValue(), modificationList);
+            ModifyRequest modifyRequest = generateModifyRequest(distinguishedName, entry);
             LDAPResult ldapResult = ldapConnection.modify(modifyRequest);
             return generateLdapResponse(ldapResult);
         } catch (LDAPException e) {
@@ -95,14 +93,7 @@ public class Ldap {
     public static Object add(BObject ldapClient, BString distinguishedName, BMap<BString, Object> entry) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Entry newEntry = new Entry(distinguishedName.getValue());
-            for (BString key: entry.getKeys()) {
-                if (key.getValue().equals(OBJECT_CLASS)) {
-                    newEntry.addAttribute(key.getValue(), ((BArray) entry.get(key)).getStringArray());
-                } else {
-                    newEntry.addAttribute(key.getValue(), entry.get(key).toString());
-                }
-            }
+            Entry newEntry = createNewEntry(distinguishedName, entry);
             LDAPResult ldapResult = ldapConnection.add(new AddRequest(newEntry));
             return generateLdapResponse(ldapResult);
         } catch (Exception e) {
@@ -137,6 +128,42 @@ public class Ldap {
         }
     }
 
+    private static Entry createNewEntry(BString distinguishedName, BMap<BString, Object> entry) {
+        Entry newEntry = new Entry(distinguishedName.getValue());
+        for (BString key: entry.getKeys()) {
+            if (TypeUtils.getType(entry.get(key)).getTag() == TypeTags.ARRAY_TAG) {
+                BArray arrayValue = (BArray) entry.get(key);
+                String[] stringArray = arrayValue.getElementType().getTag() == TypeTags.STRING_TAG
+                        ? convertToStringArray(arrayValue.getStringArray())
+                        : convertToStringArray(arrayValue.getValues());
+                newEntry.addAttribute(key.getValue(), stringArray);
+            } else {
+                newEntry.addAttribute(key.getValue(), entry.get(key).toString());
+            }
+        }
+        return newEntry;
+    }
+
+    public static String[] convertToStringArray(Object[] objectArray) {
+        if (objectArray == null) {
+            return null;
+        }
+        return Arrays.stream(objectArray)
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .toArray(String[]::new);
+    }
+
+    private static ModifyRequest generateModifyRequest(BString distinguishedName, BMap<BString, BString> entry) {
+        List<Modification> modificationList = entry.entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .map(e -> new Modification(ModificationType.REPLACE,
+                        e.getKey().getValue(), e.getValue().getValue()))
+                .collect(Collectors.toList());
+        ModifyRequest modifyRequest = new ModifyRequest(distinguishedName.getValue(), modificationList);
+        return modifyRequest;
+    }
+    
     private static void processAttribute(Attribute attribute, BMap<BString, Object> entry) {
         BString attributeName = StringUtils.fromString(attribute.getName());
         if (attribute.needsBase64Encoding()) {
@@ -199,28 +226,15 @@ public class Ldap {
     }
 
     public static String convertObjectGUIDToString(byte[] objectGUID) {
-        StringBuilder displayStr = new StringBuilder();
-        displayStr.append(prefixZeros((int) objectGUID[3] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[2] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[1] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[0] & 0xFF));
-        displayStr.append("-");
-        displayStr.append(prefixZeros((int) objectGUID[5] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[4] & 0xFF));
-        displayStr.append("-");
-        displayStr.append(prefixZeros((int) objectGUID[7] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[6] & 0xFF));
-        displayStr.append("-");
-        displayStr.append(prefixZeros((int) objectGUID[8] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[9] & 0xFF));
-        displayStr.append("-");
-        displayStr.append(prefixZeros((int) objectGUID[10] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[11] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[12] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[13] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[14] & 0xFF));
-        displayStr.append(prefixZeros((int) objectGUID[15] & 0xFF));
-        return displayStr.toString();
+        if (objectGUID == null || objectGUID.length != 16) {
+            throw new IllegalArgumentException("objectGUID must be a 16-byte array");
+        }
+        return String.format("%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                objectGUID[3], objectGUID[2], objectGUID[1], objectGUID[0],
+                objectGUID[5], objectGUID[4],
+                objectGUID[7], objectGUID[6],
+                objectGUID[8], objectGUID[9],
+                objectGUID[10], objectGUID[11], objectGUID[12], objectGUID[13], objectGUID[14], objectGUID[15]);
     }
 
 
