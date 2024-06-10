@@ -42,7 +42,7 @@ public function testAddUser() returns error? {
         userAccountControl: "544"
     };
     LdapResponse val = check ldapClient->add("CN=User,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultStatus, SUCCESS);
+    test:assertEquals(val.resultCode, SUCCESS);
 }
 
 @test:Config {
@@ -60,7 +60,7 @@ public function testAddUserWithManager() returns error? {
         "manager": "CN=User,OU=People,DC=ad,DC=windows"
     };
     LdapResponse addResult = check ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(addResult.resultStatus, SUCCESS);
+    test:assertEquals(addResult.resultCode, SUCCESS);
 }
 
 @test:Config {
@@ -68,7 +68,7 @@ public function testAddUserWithManager() returns error? {
 }
 public function testDeleteUserHavingManager() returns error? {
     LdapResponse val = check ldapClient->delete("CN=New User,OU=People,DC=ad,DC=windows");
-    test:assertEquals(val.resultStatus, SUCCESS);
+    test:assertEquals(val.resultCode, SUCCESS);
 }
 
 @test:Config {
@@ -76,7 +76,7 @@ public function testDeleteUserHavingManager() returns error? {
 }
 public function testDeleteUser() returns error? {
     LdapResponse val = check ldapClient->delete("CN=User,OU=People,DC=ad,DC=windows");
-    test:assertEquals(val.resultStatus, SUCCESS);
+    test:assertEquals(val.resultCode, SUCCESS);
 }
 
 @test:Config {
@@ -95,7 +95,7 @@ public function testAddAlreadyExistingUser() returns error? {
     test:assertTrue(val is Error);
     if val is Error {
         ErrorDetails errorDetails = val.detail();
-        test:assertEquals(errorDetails.resultStatus, "ENTRY ALREADY EXISTS");
+        test:assertEquals(errorDetails.resultCode, "ENTRY ALREADY EXISTS");
     }
 }
 
@@ -110,7 +110,7 @@ public function testUpdateUser() returns error? {
         "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
     LdapResponse val = check ldapClient->modify(userDN, user);
-    test:assertEquals(val.resultStatus, SUCCESS);
+    test:assertEquals(val.resultCode, SUCCESS);
 }
 
 @test:Config {
@@ -133,7 +133,7 @@ public function testInvalidClient() returns error? {
 }
 
 @test:Config {}
-public function testInvalidDomainInClient() returns error? {
+public function testInvalidDomainInClient() {
     Client|Error ldapClient = new ({
         hostName: hostName,
         port: port,
@@ -172,5 +172,5 @@ public function testUpdateUserWithNullValues() returns error? {
         "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
     LdapResponse val = check ldapClient->modify(userDN, user);
-    test:assertEquals(val.resultStatus, SUCCESS);
+    test:assertEquals(val.resultCode, SUCCESS);
 }

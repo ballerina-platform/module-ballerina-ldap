@@ -30,11 +30,11 @@ public type ConnectionConfig record {|
 # LDAP response type.
 #
 # + matchedDN - The matched DN from the response
-# + resultStatus - The operation status of the response
+# + resultCode - The operation status of the response
 # + operationType - The protocol operation type
 public type LdapResponse record {|
     string matchedDN;
-    Status resultStatus;
+    Status resultCode;
     string operationType;
 |};
 
@@ -54,7 +54,8 @@ public type Person record {
     string telephoneNumber?;
 };
 
-enum ObjectClass {
+# Standard values for ObjectClass attribute type.
+public enum ObjectClass {
     top,
     person,
     organizationalPerson,

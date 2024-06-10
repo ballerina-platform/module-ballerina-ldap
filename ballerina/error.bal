@@ -19,9 +19,9 @@ public type Error distinct error<ErrorDetails>;
 
 # The error details type for the Ballerina LDAP module.
 #
-# + resultStatus - The status of the error
+# + resultCode - The status of the error
 # + message - The error message
 public type ErrorDetails record {|
-    string resultStatus?;
+    string resultCode?;
     string message?;
 |};
