@@ -28,7 +28,7 @@ public function main() returns error? {
         "userPrincipalName": "newuser@ad.windows",
         "userAccountControl": "544"
     };
-    ldap:LDAPResponse val = check ldapClient->add(userDN, user);
+    ldap:LdapResponse val = check ldapClient->add(userDN, user);
 }
 ```
 
@@ -69,6 +69,6 @@ Removes an entry from a directory server.
 import ballerina/ldap;
 
 public function main() returns error? {
-    ldap:LDAPResponse val = check ldapClient->delete(userDN);
+    ldap:LdapResponse val = check ldapClient->delete(userDN);
 }
 ```

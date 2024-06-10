@@ -32,7 +32,7 @@ public type ConnectionConfig record {|
 # + matchedDN - The matched DN from the response
 # + resultStatus - The operation status of the response
 # + operationType - The protocol operation type
-public type LDAPResponse record {|
+public type LdapResponse record {|
     string matchedDN;
     Status resultStatus;
     string operationType;

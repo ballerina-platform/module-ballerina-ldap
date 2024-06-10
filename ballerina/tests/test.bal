@@ -41,7 +41,7 @@ public function testAddUser() returns error? {
         userPrincipalName: "user@ad.windows",
         userAccountControl: "544"
     };
-    LDAPResponse val = check ldapClient->add("CN=User,OU=People,DC=ad,DC=windows", user);
+    LdapResponse val = check ldapClient->add("CN=User,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultStatus, SUCCESS);
 }
 
@@ -59,7 +59,7 @@ public function testAddUserWithManager() returns error? {
         "userAccountControl": "544",
         "manager": "CN=User,OU=People,DC=ad,DC=windows"
     };
-    LDAPResponse addResult = check ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
+    LdapResponse addResult = check ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(addResult.resultStatus, SUCCESS);
 }
 
@@ -67,7 +67,7 @@ public function testAddUserWithManager() returns error? {
     dependsOn: [testGetUser]
 }
 public function testDeleteUserHavingManager() returns error? {
-    LDAPResponse val = check ldapClient->delete("CN=New User,OU=People,DC=ad,DC=windows");
+    LdapResponse val = check ldapClient->delete("CN=New User,OU=People,DC=ad,DC=windows");
     test:assertEquals(val.resultStatus, SUCCESS);
 }
 
@@ -75,7 +75,7 @@ public function testDeleteUserHavingManager() returns error? {
     dependsOn: [testDeleteUserHavingManager]
 }
 public function testDeleteUser() returns error? {
-    LDAPResponse val = check ldapClient->delete("CN=User,OU=People,DC=ad,DC=windows");
+    LdapResponse val = check ldapClient->delete("CN=User,OU=People,DC=ad,DC=windows");
     test:assertEquals(val.resultStatus, SUCCESS);
 }
 
@@ -91,7 +91,7 @@ public function testAddAlreadyExistingUser() returns error? {
         displayName: "New User",
         userPrincipalName: "newuser@ad.windows"
     };
-    LDAPResponse|Error val = ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
+    LdapResponse|Error val = ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
     test:assertTrue(val is Error);
     if val is Error {
         ErrorDetails errorDetails = val.detail();
@@ -109,7 +109,7 @@ public function testUpdateUser() returns error? {
         "displayName": "Updated User",
         "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
-    LDAPResponse val = check ldapClient->modify(userDN, user);
+    LdapResponse val = check ldapClient->modify(userDN, user);
     test:assertEquals(val.resultStatus, SUCCESS);
 }
 
@@ -171,6 +171,6 @@ public function testUpdateUserWithNullValues() returns error? {
         "title":"Clerk",
         "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
-    LDAPResponse val = check ldapClient->modify(userDN, user);
+    LdapResponse val = check ldapClient->modify(userDN, user);
     test:assertEquals(val.resultStatus, SUCCESS);
 }
