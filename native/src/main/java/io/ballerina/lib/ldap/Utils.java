@@ -25,7 +25,9 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.ballerina.lib.ldap.ModuleUtils.getModule;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
@@ -59,5 +61,59 @@ public final class Utils {
                                                   Map.of(RESULT_STATUS, resultStatus, ERROR_MESSAGE, message));
         }
         return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
+    }
+
+    public static String[] convertToStringArray(Object[] objectArray) {
+        if (objectArray == null) {
+            return null;
+        }
+        return Arrays.stream(objectArray)
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .toArray(String[]::new);
+    }
+
+    public static String convertObjectSidToString(byte[] objectSid) {
+        int offset, size;
+        if (objectSid[0] != 1) {
+            throw new IllegalArgumentException(SID_REVISION_ERROR);
+        }
+        StringBuilder stringSidBuilder = new StringBuilder("S-1-");
+        int subAuthorityCount = objectSid[1] & 0xFF;
+        long identifierAuthority = 0;
+        offset = 2;
+        size = 6;
+        for (int i = 0; i < size; i++) {
+            identifierAuthority |= (long) (objectSid[offset + i] & 0xFF) << (8 * (size - 1 - i));
+        }
+        if (identifierAuthority < Math.pow(2, 32)) {
+            stringSidBuilder.append(identifierAuthority);
+        } else {
+            stringSidBuilder.append("0x").append(
+                    Long.toHexString(identifierAuthority).toUpperCase());
+        }
+        offset = 8;
+        size = 4;
+        for (int i = 0; i < subAuthorityCount; i++, offset += size) {
+            long subAuthority = 0;
+            for (int j = 0; j < size; j++) {
+                subAuthority |= (long) (objectSid[offset + j] & 0xFF) << (8 * j);
+            }
+            stringSidBuilder.append("-").append(subAuthority);
+        }
+
+        return stringSidBuilder.toString();
+    }
+
+    public static String convertObjectGUIDToString(byte[] objectGUID) {
+        if (objectGUID == null || objectGUID.length != 16) {
+            throw new IllegalArgumentException("objectGUID must be a 16-byte array");
+        }
+        return String.format("%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                objectGUID[3], objectGUID[2], objectGUID[1], objectGUID[0],
+                objectGUID[5], objectGUID[4],
+                objectGUID[7], objectGUID[6],
+                objectGUID[8], objectGUID[9],
+                objectGUID[10], objectGUID[11], objectGUID[12], objectGUID[13], objectGUID[14], objectGUID[15]);
     }
 }

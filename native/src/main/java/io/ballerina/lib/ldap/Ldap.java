@@ -42,9 +42,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.unboundid.ldap.sdk.ResultCode.NO_SUCH_OBJECT;
@@ -56,7 +54,9 @@ import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_SID;
 import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
 import static io.ballerina.lib.ldap.ModuleUtils.RESULT_STATUS;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
-import static io.ballerina.lib.ldap.Utils.SID_REVISION_ERROR;
+import static io.ballerina.lib.ldap.Utils.convertObjectGUIDToString;
+import static io.ballerina.lib.ldap.Utils.convertObjectSidToString;
+import static io.ballerina.lib.ldap.Utils.convertToStringArray;
 
 /**
  * This class handles APIs of the LDAP client.
@@ -144,16 +144,6 @@ public class Ldap {
         return newEntry;
     }
 
-    public static String[] convertToStringArray(Object[] objectArray) {
-        if (objectArray == null) {
-            return null;
-        }
-        return Arrays.stream(objectArray)
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .toArray(String[]::new);
-    }
-
     private static ModifyRequest generateModifyRequest(BString distinguishedName, BMap<BString, BString> entry) {
         List<Modification> modificationList = entry.entrySet().stream()
                 .filter(e -> e.getValue() != null)
@@ -163,7 +153,7 @@ public class Ldap {
         ModifyRequest modifyRequest = new ModifyRequest(distinguishedName.getValue(), modificationList);
         return modifyRequest;
     }
-    
+
     private static void processAttribute(Attribute attribute, BMap<BString, Object> entry) {
         BString attributeName = StringUtils.fromString(attribute.getName());
         if (attribute.needsBase64Encoding()) {
@@ -191,62 +181,5 @@ public class Ldap {
         response.put(StringUtils.fromString(OPERATION_TYPE),
                 StringUtils.fromString(ldapResult.getOperationType().name()));
         return response;
-    }
-
-    public static String convertObjectSidToString(byte[] objectSid) {
-        int offset, size;
-        if (objectSid[0] != 1) {
-            throw new IllegalArgumentException(SID_REVISION_ERROR);
-        }
-        StringBuilder stringSidBuilder = new StringBuilder("S-1-");
-        int subAuthorityCount = objectSid[1] & 0xFF;
-        long identifierAuthority = 0;
-        offset = 2;
-        size = 6;
-        for (int i = 0; i < size; i++) {
-            identifierAuthority |= (long) (objectSid[offset + i] & 0xFF) << (8 * (size - 1 - i));
-        }
-        if (identifierAuthority < Math.pow(2, 32)) {
-            stringSidBuilder.append(identifierAuthority);
-        } else {
-            stringSidBuilder.append("0x").append(
-                    Long.toHexString(identifierAuthority).toUpperCase());
-        }
-        offset = 8;
-        size = 4;
-        for (int i = 0; i < subAuthorityCount; i++, offset += size) {
-            long subAuthority = 0;
-            for (int j = 0; j < size; j++) {
-                subAuthority |= (long) (objectSid[offset + j] & 0xFF) << (8 * j);
-            }
-            stringSidBuilder.append("-").append(subAuthority);
-        }
-
-        return stringSidBuilder.toString();
-    }
-
-    public static String convertObjectGUIDToString(byte[] objectGUID) {
-        if (objectGUID == null || objectGUID.length != 16) {
-            throw new IllegalArgumentException("objectGUID must be a 16-byte array");
-        }
-        return String.format("%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-                objectGUID[3], objectGUID[2], objectGUID[1], objectGUID[0],
-                objectGUID[5], objectGUID[4],
-                objectGUID[7], objectGUID[6],
-                objectGUID[8], objectGUID[9],
-                objectGUID[10], objectGUID[11], objectGUID[12], objectGUID[13], objectGUID[14], objectGUID[15]);
-    }
-
-
-    private static String prefixZeros(int value) {
-        if (value <= 0xF) {
-            StringBuilder sb = new StringBuilder("0");
-            sb.append(Integer.toHexString(value));
-
-            return sb.toString();
-
-        } else {
-            return Integer.toHexString(value);
-        }
     }
 }
