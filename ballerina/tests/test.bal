@@ -171,7 +171,7 @@ public function testUpdateUserWithNullValues() returns error? {
         "title":"Clerk",
         "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
-    LdapResponse val = check ldapClient->add(userDN, user);
+    LdapResponse val = check ldapClient->modify(userDN, user);
     test:assertEquals(val.resultCode, SUCCESS);
 }
 
