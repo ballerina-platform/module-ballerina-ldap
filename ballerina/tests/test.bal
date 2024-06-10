@@ -171,6 +171,35 @@ public function testUpdateUserWithNullValues() returns error? {
         "title":"Clerk",
         "manager": "CN=New User,OU=People,DC=ad,DC=windows"
     };
-    LdapResponse val = check ldapClient->modify(userDN, user);
+    LdapResponse val = check ldapClient->add(userDN, user);
     test:assertEquals(val.resultCode, SUCCESS);
+}
+
+
+@test:Config {}
+public function testAddUserWithNullValues() returns error? {
+    record {} user = {
+        "employeeID": "56111",
+        "userPrincipalName": "testuser1@ad.windows",
+        "givenName": "Test User1",
+        "middleName": null,
+        "sn": "Timothy",
+        "displayName": "Test User1",
+        "mobile": null,
+        "telephoneNumber": null,
+        "mail": "testuser1@hotmail.com",
+        "department": null,
+        "company": null,
+        "streetAddress": null,
+        "co": null,
+        "st": null,
+        "l": null,
+        "objectClass": "user",
+        "userAccountControl": "544"
+    };
+    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
+    test:assertEquals(val.resultCode, SUCCESS);
+
+    LdapResponse delete = check ldapClient->delete("CN=Test User1,OU=People,DC=ad,DC=windows");
+    test:assertEquals(delete.resultCode, SUCCESS);
 }

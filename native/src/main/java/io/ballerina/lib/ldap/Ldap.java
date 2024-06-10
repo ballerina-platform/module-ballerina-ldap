@@ -93,8 +93,8 @@ public class Ldap {
     public static Object add(BObject ldapClient, BString distinguishedName, BMap<BString, Object> entry) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Entry newEntry = createNewEntry(distinguishedName, entry);
-            LDAPResult ldapResult = ldapConnection.add(new AddRequest(newEntry));
+            AddRequest addRequest = generateAddRequest(distinguishedName, entry);
+            LDAPResult ldapResult = ldapConnection.add(addRequest);
             return generateLdapResponse(ldapResult);
         } catch (Exception e) {
             return Utils.createError(e.getMessage(), e);
@@ -128,9 +128,12 @@ public class Ldap {
         }
     }
 
-    private static Entry createNewEntry(BString distinguishedName, BMap<BString, Object> entry) {
+    private static AddRequest generateAddRequest(BString distinguishedName, BMap<BString, Object> entry) {
         Entry newEntry = new Entry(distinguishedName.getValue());
         for (BString key: entry.getKeys()) {
+            if (entry.get(key) == null) {
+                continue;
+            }
             if (TypeUtils.getType(entry.get(key)).getTag() == TypeTags.ARRAY_TAG) {
                 BArray arrayValue = (BArray) entry.get(key);
                 String[] stringArray = arrayValue.getElementType().getTag() == TypeTags.STRING_TAG
@@ -141,7 +144,7 @@ public class Ldap {
                 newEntry.addAttribute(key.getValue(), entry.get(key).toString());
             }
         }
-        return newEntry;
+        return new AddRequest(newEntry);
     }
 
     private static ModifyRequest generateModifyRequest(BString distinguishedName, BMap<BString, BString> entry) {
