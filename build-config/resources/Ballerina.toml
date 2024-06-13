@@ -1,0 +1,25 @@
+[package]
+org = "ballerina"
+name = "ldap"
+version = "@toml.version@"
+authors = ["Ballerina"]
+export=["ldap"]
+keywords = ["ldap"]
+repository = "https://github.com/ballerina-platform/module-ballerina-ldap"
+license = ["Apache-2.0"]
+distribution = "2201.8.5"
+
+[platform.java17]
+graalvmCompatible = true
+
+[[platform.java17.dependency]]
+groupId = "io.ballerina.lib"
+artifactId = "ldap-native"
+version = "@project.version@"
+path = "../native/build/libs/ldap-native-@project.version@.jar"
+
+[[platform.java17.dependency]]
+groupId = "com.unboundid"
+artifactId = "unboundid-ldapsdk"
+version = "@unboundIdLdap.version@"
+path = "./lib/unboundid-ldapsdk-@unboundIdLdap.version@.jar"
