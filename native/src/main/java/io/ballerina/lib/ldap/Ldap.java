@@ -110,9 +110,9 @@ public class Ldap {
                                 BString distinguishedName, BMap<BString, BString> entry) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
+            Future future = env.markAsync();
             validateConnection(ldapConnection);
             ModifyRequest modifyRequest = generateModifyRequest(distinguishedName, entry);
-            Future future = env.markAsync();
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncModify(modifyRequest, customAsyncResultListener);
             return null;
@@ -125,9 +125,9 @@ public class Ldap {
                                   BString newRDN, boolean deleteOldRDN) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
+            Future future = env.markAsync();
             validateConnection(ldapConnection);
             ModifyDNRequest modifyRequest = new ModifyDNRequest(currentDN.getValue(), newRDN.getValue(), deleteOldRDN);
-            Future future = env.markAsync();
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncModifyDN(modifyRequest, customAsyncResultListener);
             return null;
@@ -139,8 +139,8 @@ public class Ldap {
     public static Object delete(Environment env, BObject ldapClient, BString distinguishedName) {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            validateConnection(ldapConnection);
             Future future = env.markAsync();
+            validateConnection(ldapConnection);
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncDelete(new DeleteRequest(distinguishedName.getValue()), customAsyncResultListener);
             return null;
@@ -152,8 +152,8 @@ public class Ldap {
     public static Object compare(Environment env, BObject ldapClient,
                                  BString distinguishedName, BString attributeName, BString assertionValue) {
         try {
-            Future future = env.markAsync();
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
+            Future future = env.markAsync();
             validateConnection(ldapConnection);
             CompareRequest compareRequest = new CompareRequest(distinguishedName.getValue(), attributeName.getValue(),
                                                                assertionValue.getValue());
@@ -194,8 +194,8 @@ public class Ldap {
         try {
             SearchScope searchScope = getSearchScope(scope);
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            validateConnection(ldapConnection);
             Future future = env.markAsync();
+            validateConnection(ldapConnection);
             SearchResultListener searchResultListener = new CustomSearchResultListener(future, baseDN.getValue());
             SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDN.getValue(),
                                                             searchScope, filter.getValue());
@@ -211,8 +211,8 @@ public class Ldap {
         try {
             SearchScope searchScope = getSearchScope(scope);
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            validateConnection(ldapConnection);
             Future future = env.markAsync();
+            validateConnection(ldapConnection);
             SearchResultListener searchResultListener = new CustomSearchEntryListener(future, typeParam,
                                                                                       baseDN.getValue());
             SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDN.getValue(),
