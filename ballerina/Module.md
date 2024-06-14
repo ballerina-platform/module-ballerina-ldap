@@ -132,7 +132,7 @@ Unbinds from the server and closes the LDAP connection.
 ```ballerina
 import ballerina/ldap;
 
-public function main() returns error? {
+public function main() {
     ldapClient->close();
 }
 ```

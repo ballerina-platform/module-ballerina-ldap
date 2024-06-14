@@ -43,10 +43,10 @@ import static io.ballerina.lib.ldap.Utils.createError;
  * Callback class to handle search entry values asynchronously.
  */
 public class CustomSearchEntryListener implements AsyncSearchResultListener {
-    Future future;
-    BArray array;
-    BTypedesc typeDesc;
-    String distinguishedName;
+    private final Future future;
+    private final BArray array;
+    private final BTypedesc typeDesc;
+    private final String distinguishedName;
 
     public CustomSearchEntryListener(Future future, BTypedesc typeDesc, String distinguishedName) {
         this.future = future;

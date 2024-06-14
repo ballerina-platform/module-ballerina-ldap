@@ -42,10 +42,10 @@ import static io.ballerina.lib.ldap.Utils.createError;
  * Callback class to handle search results asynchronously.
  */
 public class CustomSearchResultListener implements AsyncSearchResultListener {
-    Future future;
-    List<BMap<BString, Object>> references;
-    List<BMap<BString, Object>> entries;
-    String distinguishedName;
+    private final Future future;
+    private final List<BMap<BString, Object>> references;
+    private final List<BMap<BString, Object>> entries;
+    private final String distinguishedName;
 
     public CustomSearchResultListener(Future future, String distinguishedName) {
         this.distinguishedName = distinguishedName;
