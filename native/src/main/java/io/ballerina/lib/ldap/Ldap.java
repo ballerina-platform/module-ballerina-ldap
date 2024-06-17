@@ -93,67 +93,67 @@ public class Ldap {
 
     public static Object add(Environment env, BObject ldapClient,
                              BString distinguishedName, BMap<BString, Object> entry) {
+        Future future = env.markAsync();
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
             validateConnection(ldapConnection);
             AddRequest addRequest = generateAddRequest(distinguishedName, entry);
-            Future future = env.markAsync();
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncAdd(addRequest, customAsyncResultListener);
-            return null;
         } catch (Exception e) {
-            return Utils.createError(e.getMessage(), e);
+            future.complete(Utils.createError(e.getMessage(), e));
         }
+        return null;
     }
 
     public static Object modify(Environment env, BObject ldapClient,
                                 BString distinguishedName, BMap<BString, BString> entry) {
+        Future future = env.markAsync();
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Future future = env.markAsync();
             validateConnection(ldapConnection);
             ModifyRequest modifyRequest = generateModifyRequest(distinguishedName, entry);
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncModify(modifyRequest, customAsyncResultListener);
-            return null;
         } catch (LDAPException e) {
-            return Utils.createError(e.getMessage(), e);
+            future.complete(Utils.createError(e.getMessage(), e));
         }
+        return null;
     }
 
     public static Object modifyDN(Environment env, BObject ldapClient, BString currentDN,
                                   BString newRDN, boolean deleteOldRDN) {
+        Future future = env.markAsync();
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Future future = env.markAsync();
             validateConnection(ldapConnection);
             ModifyDNRequest modifyRequest = new ModifyDNRequest(currentDN.getValue(), newRDN.getValue(), deleteOldRDN);
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncModifyDN(modifyRequest, customAsyncResultListener);
-            return null;
         } catch (LDAPException e) {
-            return Utils.createError(e.getMessage(), e);
+            future.complete(Utils.createError(e.getMessage(), e));
         }
+        return null;
     }
 
     public static Object delete(Environment env, BObject ldapClient, BString distinguishedName) {
+        Future future = env.markAsync();
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Future future = env.markAsync();
             validateConnection(ldapConnection);
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncDelete(new DeleteRequest(distinguishedName.getValue()), customAsyncResultListener);
-            return null;
         } catch (Exception e) {
-            return Utils.createError(e.getMessage(), e);
+            future.complete(Utils.createError(e.getMessage(), e));
         }
+        return null;
     }
 
     public static Object compare(Environment env, BObject ldapClient,
                                  BString distinguishedName, BString attributeName, BString assertionValue) {
+        Future future = env.markAsync();
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Future future = env.markAsync();
             validateConnection(ldapConnection);
             CompareRequest compareRequest = new CompareRequest(distinguishedName.getValue(), attributeName.getValue(),
                                                                assertionValue.getValue());
@@ -165,10 +165,10 @@ public class Ldap {
                     future.complete(Utils.createError(ldapException.getMessage(), ldapException));
                 }
             });
-            return null;
         } catch (LDAPException e) {
-            return Utils.createError(e.getMessage(), e);
+            future.complete(Utils.createError(e.getMessage(), e));
         }
+        return null;
     }
 
     public static Object getEntry(BObject ldapClient, BString distinguishedName, BTypedesc typeParam) {
@@ -191,37 +191,37 @@ public class Ldap {
 
     public static Object search(Environment env, BObject ldapClient, BString baseDN,
                                 BString filter, BString scope) {
+        Future future = env.markAsync();
         try {
             SearchScope searchScope = getSearchScope(scope);
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Future future = env.markAsync();
             validateConnection(ldapConnection);
             SearchResultListener searchResultListener = new CustomSearchResultListener(future, baseDN.getValue());
             SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDN.getValue(),
                                                             searchScope, filter.getValue());
             ldapConnection.asyncSearch(searchRequest);
-            return null;
         } catch (LDAPException e) {
-            return Utils.createError(e.getMessage(), e);
+            future.complete(Utils.createError(e.getMessage(), e));
         }
+        return null;
     }
 
     public static Object searchWithType(Environment env, BObject ldapClient, BString baseDN,
                                         BString filter, BString scope, BTypedesc typeParam) {
+        Future future = env.markAsync();
         try {
             SearchScope searchScope = getSearchScope(scope);
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
-            Future future = env.markAsync();
             validateConnection(ldapConnection);
             SearchResultListener searchResultListener = new CustomSearchEntryListener(future, typeParam,
                                                                                       baseDN.getValue());
             SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDN.getValue(),
                                                             searchScope, filter.getValue());
             ldapConnection.asyncSearch(searchRequest);
-            return null;
         } catch (LDAPException e) {
-            return Utils.createError(e.getMessage(), e);
+            future.complete(Utils.createError(e.getMessage(), e));
         }
+        return null;
     }
 
     public static void close(BObject ldapClient) {
