@@ -27,7 +27,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "ldap"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "test"}
