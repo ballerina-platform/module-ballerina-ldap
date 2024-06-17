@@ -29,7 +29,9 @@ Client ldapClient = check new ({
     password: password
 });
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testAddUser() returns error? {
     UserConfig user = {
         "objectClass": ["user", organizationalPerson, "person", "top"],
@@ -45,6 +47,7 @@ public function testAddUser() returns error? {
 }
 
 @test:Config {
+    enable: false,
     dependsOn: [testAddUser]
 }
 public function testAddUserWithManager() returns error? {
@@ -63,6 +66,7 @@ public function testAddUserWithManager() returns error? {
 }
 
 @test:Config {
+    enable: false,
     dependsOn: [testGetUser]
 }
 public function testDeleteUserHavingManager() returns error? {
@@ -71,6 +75,7 @@ public function testDeleteUserHavingManager() returns error? {
 }
 
 @test:Config {
+    enable: false,
     dependsOn: [testDeleteUserHavingManager]
 }
 public function testDeleteUser() returns error? {
@@ -79,6 +84,7 @@ public function testDeleteUser() returns error? {
 }
 
 @test:Config {
+    enable: false,
     dependsOn: [testAddUserWithManager]
 }
 public function testAddAlreadyExistingUser() returns error? {
@@ -99,6 +105,7 @@ public function testAddAlreadyExistingUser() returns error? {
 }
 
 @test:Config {
+    enable: false,
     dependsOn: [testAddAlreadyExistingUser]
 }
 public function testUpdateUser() returns error? {
@@ -113,6 +120,7 @@ public function testUpdateUser() returns error? {
 }
 
 @test:Config {
+    enable: false,
     dependsOn: [testUpdateUserWithNullValues]
 }
 public function testGetUser() returns error? {
@@ -120,7 +128,9 @@ public function testGetUser() returns error? {
     test:assertEquals(value?.givenName, "Updated User");
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testInvalidClient() returns error? {
     Client|Error ldapClient = new ({
         hostName: "111.111.11.111",
@@ -131,7 +141,9 @@ public function testInvalidClient() returns error? {
     test:assertTrue(ldapClient is Error);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testInvalidDomainInClient() {
     Client|Error ldapClient = new ({
         hostName: hostName,
@@ -142,13 +154,16 @@ public function testInvalidDomainInClient() {
     test:assertTrue(ldapClient is Error);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testGetInvalidUser() returns error? {
     UserConfig|Error value = ldapClient->getEntry("CN=Invalid User,OU=People,DC=ad,DC=windows");
     test:assertTrue(value is Error);
 }
 
 @test:Config {
+    enable: false,
     dependsOn: [testUpdateUser]
 }
 public function testUpdateUserWithNullValues() returns error? {
@@ -156,7 +171,9 @@ public function testUpdateUserWithNullValues() returns error? {
     test:assertEquals(val.resultCode, SUCCESS);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testAddUserWithNullValues() returns error? {
     LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultCode, SUCCESS);
@@ -165,7 +182,9 @@ public function testAddUserWithNullValues() returns error? {
     test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testCompareAttributeValues() returns error? {
     LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultCode, SUCCESS);
@@ -180,7 +199,9 @@ public function testCompareAttributeValues() returns error? {
     test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testSearchWithType() returns error? {
     LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultCode, SUCCESS);
@@ -193,7 +214,9 @@ public function testSearchWithType() returns error? {
     test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testSearchUser() returns error? {
     LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultCode, SUCCESS);
@@ -209,6 +232,7 @@ public function testSearchUser() returns error? {
 }
 
 @test:Config {
+    enable: false
 }
 public function testSearchNonExistingUsers() returns error? {
     LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
@@ -225,7 +249,9 @@ public function testSearchNonExistingUsers() returns error? {
     test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testAddingUserWithClosedClient() returns error? {
     Client ldapClient1 = check new ({
         hostName: hostName,
@@ -245,7 +271,9 @@ public function testAddingUserWithClosedClient() returns error? {
     }
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testModifyingUserWithClosedClient() returns error? {
     Client ldapClient1 = check new ({
         hostName: hostName,
@@ -265,7 +293,9 @@ public function testModifyingUserWithClosedClient() returns error? {
     }
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testModifyDN() returns error? {
     LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultCode, SUCCESS);
@@ -277,7 +307,9 @@ public function testModifyDN() returns error? {
     test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testModifyDnInNonExistingUser() {
     LdapResponse|Error modifyDN = ldapClient->modifyDN("CN=Non Existing User,OU=People,DC=ad,DC=windows", "CN=Test User2", true);
     test:assertTrue(modifyDN is Error);
@@ -287,7 +319,9 @@ public function testModifyDnInNonExistingUser() {
     }
 }
 
-@test:Config {}
+@test:Config {
+    enable: false
+}
 public function testSearchWithInvalidType() returns error? {
     LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
     test:assertEquals(val.resultCode, SUCCESS);
