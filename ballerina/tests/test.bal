@@ -226,7 +226,7 @@ public function testSearchNonExistingUsers() returns error? {
 }
 
 @test:Config {}
-public function testUserWithAnotherClient() returns error? {
+public function testAddingUserWithClosedClient() returns error? {
     Client ldapClient1 = check new ({
         hostName: hostName,
         port: port,
@@ -243,4 +243,58 @@ public function testUserWithAnotherClient() returns error? {
         test:assertEquals(errorDetails.resultCode, OTHER);
         test:assertEquals(errorDetails.message, "LDAP Connection has been closed");
     }
+}
+
+@test:Config {}
+public function testModifyingUserWithClosedClient() returns error? {
+    Client ldapClient1 = check new ({
+        hostName: hostName,
+        port: port,
+        domainName: domainName,
+        password: password
+    });
+    ldapClient1->close();
+    boolean isConnected = ldapClient1->isConnected();
+    test:assertTrue(!isConnected);
+    LdapResponse|Error val = ldapClient1->modify(userDN, updateUser);
+    test:assertTrue(val is Error);
+    if val is Error {
+        ErrorDetails errorDetails = val.detail();
+        test:assertEquals(errorDetails.resultCode, OTHER);
+        test:assertEquals(errorDetails.message, "LDAP Connection has been closed");
+    }
+}
+
+@test:Config {}
+public function testModifyDN() returns error? {
+    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
+    test:assertEquals(val.resultCode, SUCCESS);
+
+    LdapResponse modifyDN = check ldapClient->modifyDN("CN=Test User1,OU=People,DC=ad,DC=windows", "CN=Test User2", true);
+    test:assertEquals(modifyDN.resultCode, SUCCESS);
+
+    LdapResponse delete = check ldapClient->delete("CN=Test User2,OU=People,DC=ad,DC=windows");
+    test:assertEquals(delete.resultCode, SUCCESS);
+}
+
+@test:Config {}
+public function testModifyDnInNonExistingUser() {
+    LdapResponse|Error modifyDN = ldapClient->modifyDN("CN=Non Existing User,OU=People,DC=ad,DC=windows", "CN=Test User2", true);
+    test:assertTrue(modifyDN is Error);
+    if modifyDN is Error {
+        ErrorDetails errorDetails = modifyDN.detail();
+        test:assertEquals(errorDetails.resultCode, NO_SUCH_OBJECT);
+    }
+}
+
+@test:Config {}
+public function testSearchWithInvalidType() returns error? {
+    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
+    test:assertEquals(val.resultCode, SUCCESS);
+
+    record {|string id;|}[]|Error value = ldapClient->searchWithType("DC=ad,DC=windows", "(givenName=Test User1)", SUB);
+    test:assertTrue(value is Error);
+    test:assertEquals((<Error>value).message(), "{ballerina}ConversionError");
+    LdapResponse delete = check ldapClient->delete("CN=Test User1,OU=People,DC=ad,DC=windows");
+    test:assertEquals(delete.resultCode, SUCCESS);
 }
