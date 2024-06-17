@@ -1,0 +1,5 @@
+hostName = "host-name"
+port = 389
+domainName = "domain@ad.com"
+password = "password"
+userDN = "CN=User,OU=People,DC=ad,DC=com"
