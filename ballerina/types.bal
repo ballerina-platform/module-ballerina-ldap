@@ -72,15 +72,15 @@ public type Control record {|
 |};
 
 # Scope of the search operation.
-# 
-# BASE - Indicates that only the entry specified by the base DN should be considered. \
-# ONE - Indicates that only entries that are immediate subordinates of the entry specified by the base DN (but not the base entry itself) should be considered. \
-# SUB - Indicates that the base entry itself and any subordinate entries (to any depth) should be considered. \
-# SUBORDINATE_SUBTREE - Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in draft-sermersheim-ldap-subordinate-scope.
+#
 public enum SearchScope {
+    # Indicates that only the entry specified by the base DN should be considered
     BASE,
+    # Indicates that only entries that are immediate subordinates of the entry specified by the base DN (but not the base entry itself) should be considered
     ONE,
+    # Indicates that the base entry itself and any subordinate entries (to any depth) should be considered
     SUB,
+    # Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in draft-sermersheim-ldap-subordinate-scope
     SUBORDINATE_SUBTREE
 };
 
