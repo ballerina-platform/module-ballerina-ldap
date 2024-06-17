@@ -8,8 +8,12 @@ The Ballerina LDAP module provides the capability to efficiently connect, authen
 
 - **add**: Creates an entry in a directory server.
 - **modify**: Updates information of an entry in a directory server.
-- **getEntry**: Gets information about an entry in a directory server.
+- **modifyDN**: Renames an entry in a directory server.
+- **compare**: Determines whether a given entry has a specified attribute value.
+- **search**: Returns a record containing search result entries and references that match the given search parameters.
+- **searchWithType**: Returns a list of entries that match the given search parameters.
 - **delete**: Removes an entry from a directory server.
+- **close**: Unbinds from the server and closes the LDAP connection.
 
 #### `add` API
 
@@ -49,6 +53,54 @@ public function main() returns error? {
 }
 ```
 
+#### `modifyDN` API
+
+Updates information of an entry.
+
+```ballerina
+import ballerina/ldap;
+
+public function main() returns error? {
+    ldap:LdapResponse modifyDN = check ldapClient->modifyDN(userDN, "CN=Test User2", true);
+}
+```
+
+#### `compare` API
+
+Determines whether a given entry has a specified attribute value.
+
+```ballerina
+import ballerina/ldap;
+
+public function main() returns error? {
+    ldap:LdapResponse compare = check ldapClient->compare(userDN, "givenName", "Test User1");
+}
+```
+
+#### `search` API
+
+Returns a record containing search result entries and references that match the given search parameters.
+
+```ballerina
+import ballerina/ldap;
+
+public function main() returns error? {
+    ldap:SearchResult value = check ldapClient->search("DC=ad,DC=windows", "(givenName=Test User1)", SUB);
+}
+```
+
+#### `searchWithType` API
+
+Returns a list of entries that match the given search parameters.
+
+```ballerina
+import ballerina/ldap;
+
+public function main() returns error? {
+    anydata[] value = check ldapClient->searchWithType("DC=ad,DC=com", "(givenName=Test User1)", ldap:SUB);
+}
+```
+
 #### `getEntry` API
 
 Gets information about an entry in a directory server.
@@ -70,5 +122,17 @@ import ballerina/ldap;
 
 public function main() returns error? {
     ldap:LdapResponse val = check ldapClient->delete(userDN);
+}
+```
+
+#### `close` API
+
+Unbinds from the server and closes the LDAP connection.
+
+```ballerina
+import ballerina/ldap;
+
+public function main() {
+    ldapClient->close();
 }
 ```

@@ -19,12 +19,13 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
+    id 'com.github.spotbugs'
     id "com.github.johnrengelman.shadow"
     id "de.undercouch.download"
     id "net.researchgate.release"
 }
 
-description = 'Ballerina - Schema Registry'
+description = 'Ballerina - LDAP'
 
 allprojects {
     group = project.group

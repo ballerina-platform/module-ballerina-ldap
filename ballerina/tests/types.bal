@@ -38,3 +38,43 @@ type UserConfig record {
     string manager?;
     string userAccountControl?;
 };
+
+record {} user = {
+    "employeeID": "56111",
+    "userPrincipalName": "testuser1@ad.windows",
+    "givenName": "Test User1",
+    "middleName": null,
+    "sn": "Timothy",
+    "displayName": "Test User1",
+    "mobile": null,
+    "telephoneNumber": null,
+    "mail": "testuser1@hotmail.com",
+    "department": null,
+    "company": null,
+    "streetAddress": null,
+    "co": null,
+    "st": null,
+    "l": null,
+    "objectClass": ["top","person","organizationalPerson","user"],
+    "userAccountControl": "544"
+};
+
+record {} updateUser = {
+    "objectClass": ["user", organizationalPerson, "person", "top"],
+    "employeeID":"30896",
+    "givenName": "Updated User",
+    "sn": "User",
+    "company":"Grocery Co. USA",
+    "co":null,
+    "streetAddress":null,
+    "mobile":null,
+    "displayName": "Updated User",
+    "middleName":null,
+    "mail":null,
+    "l":null,
+    "telephoneNumber":null,
+    "department":"Produce",
+    "st":null,
+    "title":"Clerk",
+    "manager": "CN=New User,OU=People,DC=ad,DC=windows"
+};
