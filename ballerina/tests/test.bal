@@ -22,12 +22,21 @@ configurable string domainName = ?;
 configurable string password = ?;
 configurable string userDN = ?;
 
-Client ldapClient = check new ({
-    hostName: hostName,
-    port: port,
-    domainName: domainName,
-    password: password
-});
+boolean isTestOnLiveServer = false;
+
+Client ldapClient = test:mock(Client);
+
+@test:BeforeSuite
+function initializeClientsForCalendarServer () returns error? {
+    if isTestOnLiveServer {
+        ldapClient = check new ({
+            hostName: hostName,
+            port: port,
+            domainName: domainName,
+            password: password
+        });
+    }
+}
 
 @test:Config {
     enable: false
