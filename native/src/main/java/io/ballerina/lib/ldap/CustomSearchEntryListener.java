@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -45,6 +46,7 @@ import static io.ballerina.lib.ldap.Utils.createError;
 public class CustomSearchEntryListener implements AsyncSearchResultListener {
     private final Future future;
     private final BArray array;
+    private BError error;
     private final BTypedesc typeDesc;
     private final String distinguishedName;
 
@@ -53,27 +55,41 @@ public class CustomSearchEntryListener implements AsyncSearchResultListener {
         this.array = ValueCreator.createArrayValue((ArrayType) typeDesc.getDescribingType());
         this.distinguishedName = distinguishedName;
         this.typeDesc = typeDesc;
+        this.error = null;
     }
 
     @Override
     public void searchResultReceived(AsyncRequestID requestID, SearchResult searchResult) {
+        if (error != null) {
+            future.complete(error);
+            return;
+        }
+        if (!searchResult.getResultCode().equals(ResultCode.SUCCESS)) {
+            LDAPException ldapException = new LDAPException(searchResult);
+            future.complete(Utils.createError(ldapException.getMessage(), ldapException));
+            return;
+        }
         if (array.isEmpty()) {
             String errorMessage = ENTRY_NOT_FOUND + distinguishedName;
             LDAPException ldapException = new LDAPException(ResultCode.OTHER, errorMessage);
             future.complete(createError(ldapException.getMessage(), ldapException));
-        } else {
-            future.complete(array);
+            return;
         }
+        future.complete(array);
     }
 
     @Override
     public void searchEntryReturned(SearchResultEntry searchEntry) {
-        BMap<BString, Object> entry = ValueCreator.createMapValue();
-        for (Attribute attribute : searchEntry.getAttributes()) {
-            processAttribute(attribute, entry);
+        try {
+            BMap<BString, Object> entry = ValueCreator.createMapValue();
+            for (Attribute attribute : searchEntry.getAttributes()) {
+                processAttribute(attribute, entry);
+            }
+            ArrayType arrayType = (ArrayType) typeDesc.getDescribingType();
+            array.append(ValueUtils.convert(entry, arrayType.getElementType()));
+        } catch (Exception e) {
+            this.error = createError(e.getMessage(), e);
         }
-        ArrayType arrayType = (ArrayType) typeDesc.getDescribingType();
-        array.append(ValueUtils.convert(entry, arrayType.getElementType()));
     }
 
     @Override

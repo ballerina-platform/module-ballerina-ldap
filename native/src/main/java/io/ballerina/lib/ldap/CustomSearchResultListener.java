@@ -56,13 +56,18 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
 
     @Override
     public void searchResultReceived(AsyncRequestID requestID, SearchResult searchResult) {
+        if (!searchResult.getResultCode().equals(ResultCode.SUCCESS)) {
+            LDAPException ldapException = new LDAPException(searchResult);
+            future.complete(Utils.createError(ldapException.getMessage(), ldapException));
+            return;
+        }
         if (entries.isEmpty()) {
             String errorMessage = ENTRY_NOT_FOUND + distinguishedName;
             LDAPException ldapException = new LDAPException(ResultCode.OTHER, errorMessage);
             future.complete(createError(ldapException.getMessage(), ldapException));
-        } else {
-            future.complete(Utils.createSearchResultRecord(searchResult, references, entries));
+            return;
         }
+        future.complete(Utils.createSearchResultRecord(searchResult, references, entries));
     }
 
     @Override

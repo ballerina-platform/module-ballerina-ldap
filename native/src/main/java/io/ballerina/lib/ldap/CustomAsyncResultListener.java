@@ -39,11 +39,11 @@ public class CustomAsyncResultListener implements AsyncResultListener {
 
     @Override
     public void ldapResultReceived(AsyncRequestID requestID, LDAPResult ldapResult) {
-        if (ldapResult.getResultCode().equals(ResultCode.SUCCESS)) {
-            future.complete(generateLdapResponse(ldapResult));
-        } else {
+        if (!ldapResult.getResultCode().equals(ResultCode.SUCCESS)) {
             LDAPException ldapException = new LDAPException(ldapResult);
             future.complete(Utils.createError(ldapException.getMessage(), ldapException));
+            return;
         }
+        future.complete(generateLdapResponse(ldapResult));
     }
 }
