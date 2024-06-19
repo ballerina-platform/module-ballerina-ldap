@@ -33,7 +33,7 @@ import io.ballerina.runtime.api.values.BString;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.lib.ldap.Ldap.processAttribute;
+import static io.ballerina.lib.ldap.Client.processAttribute;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
 import static io.ballerina.lib.ldap.Utils.createEntryRecord;
 import static io.ballerina.lib.ldap.Utils.createError;
@@ -45,10 +45,10 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
     private final Future future;
     private final List<BMap<BString, Object>> references;
     private final List<BMap<BString, Object>> entries;
-    private final String distinguishedName;
+    private final String dN;
 
-    public CustomSearchResultListener(Future future, String distinguishedName) {
-        this.distinguishedName = distinguishedName;
+    public CustomSearchResultListener(Future future, String dN) {
+        this.dN = dN;
         this.future = future;
         this.references = new ArrayList<>();
         this.entries = new ArrayList<>();
@@ -62,7 +62,7 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
             return;
         }
         if (entries.isEmpty()) {
-            String errorMessage = ENTRY_NOT_FOUND + distinguishedName;
+            String errorMessage = ENTRY_NOT_FOUND + dN;
             LDAPException ldapException = new LDAPException(ResultCode.OTHER, errorMessage);
             future.complete(createError(ldapException.getMessage(), ldapException));
             return;

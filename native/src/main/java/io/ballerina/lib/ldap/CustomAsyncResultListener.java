@@ -25,7 +25,7 @@ import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
 import io.ballerina.runtime.api.Future;
 
-import static io.ballerina.lib.ldap.Ldap.generateLdapResponse;
+import static io.ballerina.lib.ldap.Client.generateLdapResponse;
 
 /**
  * Callback class to handle asynchronous operations.

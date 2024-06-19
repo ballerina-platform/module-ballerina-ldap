@@ -39,8 +39,9 @@ public final class ModuleUtils {
     public static final String LDAP_RESPONSE = "LdapResponse";
     public static final String RESULT_STATUS = "resultCode";
     public static final String MATCHED_DN = "matchedDN";
+    public static final String DIAGNOSTIC_MESSAGE = "diagnosticMessage";
+    public static final String REFERRAL = "referral";
     public static final String OPERATION_TYPE = "operationType";
-
     public static final String OBJECT_GUID = "objectGUID";
     public static final String OBJECT_SID = "objectSid";
     public static final String OBJECT_CLASS = "objectClass";
