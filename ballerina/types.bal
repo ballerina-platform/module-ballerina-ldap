@@ -31,11 +31,15 @@ public type ConnectionConfig record {|
 #
 # + matchedDN - The matched DN from the response
 # + resultCode - The operation status of the response
+# + diagnosticMessage - The diagnostic message from the response
 # + operationType - The protocol operation type
+# + refferal - The referral URIs
 public type LdapResponse record {|
     string matchedDN;
     Status resultCode;
+    string diagnosticMessage;
     string operationType;
+    string[] refferal;
 |};
 
 # LDAP search result type.
@@ -84,8 +88,11 @@ public enum SearchScope {
     SUBORDINATE_SUBTREE
 };
 
+# Attribute type of an LDAP entry.
+public type EntryMember boolean|int|float|decimal|string|string[];
+
 # LDAP entry type.
-public type Entry record {};
+public type Entry record{|EntryMember...;|};
 
 # A record for an entry that represents a person.
 #
