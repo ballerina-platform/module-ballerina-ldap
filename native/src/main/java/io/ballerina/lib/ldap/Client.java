@@ -244,9 +244,6 @@ public class Client {
     private static AddRequest generateAddRequest(BString dN, BMap<BString, Object> entry) {
         Entry newEntry = new Entry(dN.getValue());
         for (BString key: entry.getKeys()) {
-            if (entry.get(key) == null) {
-                continue;
-            }
             if (TypeUtils.getType(entry.get(key)).getTag() == TypeTags.ARRAY_TAG) {
                 BArray arrayValue = (BArray) entry.get(key);
                 String[] stringArray = arrayValue.getElementType().getTag() == TypeTags.STRING_TAG
@@ -263,9 +260,6 @@ public class Client {
     private static ModifyRequest generateModifyRequest(BString dN, BMap<BString, BString> entry) {
         List<Modification> modificationList = new ArrayList<>();
         for (BString key: entry.getKeys()) {
-            if (entry.get(key) == null) {
-                continue;
-            }
             if (TypeUtils.getType(entry.get(key)).getTag() == TypeTags.ARRAY_TAG) {
                 BArray arrayValue = (BArray) entry.get(key);
                 String[] stringArray = arrayValue.getElementType().getTag() == TypeTags.STRING_TAG
