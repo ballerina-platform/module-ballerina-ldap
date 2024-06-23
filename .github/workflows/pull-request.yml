@@ -13,7 +13,4 @@ jobs:
         uses: ballerina-platform/ballerina-library/.github/workflows/pull-request-build-template.yml@main
         secrets: inherit
         with:
-            additional-ubuntu-build-flags: "-x test"
-            additional-ubuntu-test-flags: "-x test"
-            additional-windows-build-flags: "-x test"
             additional-windows-test-flags: "-x test"
