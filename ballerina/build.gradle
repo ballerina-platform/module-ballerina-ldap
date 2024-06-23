@@ -149,10 +149,8 @@ updateTomlFiles.dependsOn copyStdlibs
 build.dependsOn copyToLib
 
 test.dependsOn ":${packageName}-native:build"
-if (!project.gradle.startParameter.excludedTaskNames.contains('test')) {
-    build.finalizedBy stopLdapServer
-    build.dependsOn startLdapServer
-}
+build.finalizedBy stopLdapServer
+build.dependsOn startLdapServer
 build.dependsOn ":${packageName}-native:build"
 
 publishToMavenLocal.dependsOn build
