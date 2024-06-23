@@ -49,7 +49,7 @@ public type LdapResponse record {|
 # + entries - The entries returned from the search
 public type SearchResult record {|
     Status resultCode;
-    SearchReference[] searchReferences?;
+    SearchReference[]? searchReferences?;
     Entry[] entries?;
 |};
 
