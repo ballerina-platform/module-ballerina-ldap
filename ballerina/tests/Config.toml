@@ -1,5 +1,5 @@
-hostName = "host-name"
+hostName = "localhost"
 port = 389
-domainName = "domain@ad.com"
-password = "password"
-userDN = "CN=User,OU=People,DC=ad,DC=com"
+domainName = "cn=admin,dc=mycompany,dc=com"
+password = "adminpassword"
+userDN = "CN=User,dc=mycompany,dc=com"
