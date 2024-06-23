@@ -40,24 +40,11 @@ type UserConfig record {
 };
 
 record {|EntryMember...;|} user = {
-    "employeeID": "56111",
-    "userPrincipalName": "testuser1@ad.windows",
-    "givenName": "Test User1",
     "sn": "Timothy",
-    "displayName": "Test User1",
-    "mail": "testuser1@hotmail.com",
-    "objectClass": ["top","person","organizationalPerson","user"],
-    "userAccountControl": "544"
+    "objectClass": ["person", "top"]
 };
 
 record {|EntryMember...;|} updateUser = {
-    "objectClass": ["user", organizationalPerson, "person", "top"],
-    "employeeID":"30896",
-    "givenName": "Updated User",
-    "sn": "User",
-    "company":"Grocery Co. USA",
-    "displayName": "Updated User",
-    "department":"Produce",
-    "title":"Clerk",
-    "manager": "CN=New User,OU=People,DC=ad,DC=windows"
+    "objectClass": ["person", "top"],
+    "sn": "Updated User"
 };
