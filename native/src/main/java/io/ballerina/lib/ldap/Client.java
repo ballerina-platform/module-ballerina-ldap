@@ -53,6 +53,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static com.unboundid.ldap.sdk.ResultCode.NO_SUCH_OBJECT;
 import static com.unboundid.ldap.sdk.ResultCode.OTHER;
@@ -303,7 +304,7 @@ public class Client {
         BMap<BString, Object> response = ValueCreator.createRecordValue(ModuleUtils.getModule(), LDAP_RESPONSE);
         response.put(StringUtils.fromString(MATCHED_DN), StringUtils.fromString(ldapResult.getMatchedDN()));
         response.put(StringUtils.fromString(RESULT_STATUS),
-                StringUtils.fromString(ldapResult.getResultCode().getName().toUpperCase()));
+                StringUtils.fromString(ldapResult.getResultCode().getName().toUpperCase(Locale.ROOT)));
         response.put(StringUtils.fromString(DIAGNOSTIC_MESSAGE),
                 StringUtils.fromString(ldapResult.getDiagnosticMessage()));
         response.put(StringUtils.fromString(REFERRAL), convertToStringArray(ldapResult.getReferralURLs()));

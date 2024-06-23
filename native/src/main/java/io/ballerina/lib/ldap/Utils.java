@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -81,7 +82,7 @@ public final class Utils {
 
     private static BMap<BString, Object> getErrorDetails(Throwable throwable) {
         if (throwable instanceof LDAPException) {
-            String resultCode = ((LDAPException) throwable).getResultCode().getName().toUpperCase();
+            String resultCode = ((LDAPException) throwable).getResultCode().getName().toUpperCase(Locale.ROOT);
             return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS, Map.of(RESULT_STATUS, resultCode));
         }
         return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
@@ -90,7 +91,7 @@ public final class Utils {
     public static BMap<BString, Object> createSearchResultRecord(SearchResult searchResult,
                                                                  List<BMap<BString, Object>> references,
                                                                  List<BMap<BString, Object>> entries) {
-        String resultCode = searchResult.getResultCode().getName().toUpperCase();
+        String resultCode = searchResult.getResultCode().getName().toUpperCase(Locale.ROOT);
         Map<String, Object> valueMap = new HashMap<>();
         valueMap.put(RESULT_STATUS, resultCode);
         if (!references.isEmpty()) {
@@ -145,7 +146,7 @@ public final class Utils {
 
     public static String[] convertToStringArray(Object[] objectArray) {
         if (objectArray == null) {
-            return null;
+            return new String[]{};
         }
         return Arrays.stream(objectArray)
                 .filter(Objects::nonNull)
@@ -180,7 +181,7 @@ public final class Utils {
             stringSidBuilder.append(identifierAuthority);
         } else {
             stringSidBuilder.append("0x").append(
-                    Long.toHexString(identifierAuthority).toUpperCase());
+                    Long.toHexString(identifierAuthority).toUpperCase(Locale.ROOT));
         }
         offset = 8;
         size = 4;

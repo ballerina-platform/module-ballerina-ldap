@@ -36,18 +36,24 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
+
 import static io.ballerina.lib.ldap.Client.processAttribute;
-import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
-import static io.ballerina.lib.ldap.Utils.createError;
 
 /**
  * Callback class to handle search entry values asynchronously.
  */
 public class CustomSearchEntryListener implements AsyncSearchResultListener {
-    private final Future future;
-    private final BArray array;
-    private BError error;
-    private final BTypedesc typeDesc;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+    private transient Future future;
+    private transient BArray array;
+    private transient BError error;
+    private transient BTypedesc typeDesc;
     private final String dN;
 
     public CustomSearchEntryListener(Future future, BTypedesc typeDesc, String dN) {
@@ -70,9 +76,9 @@ public class CustomSearchEntryListener implements AsyncSearchResultListener {
             return;
         }
         if (array.isEmpty()) {
-            String errorMessage = ENTRY_NOT_FOUND + dN;
+            String errorMessage = "ENTRY_NOT_FOUND " + dN;
             LDAPException ldapException = new LDAPException(ResultCode.OTHER, errorMessage);
-            future.complete(createError(ldapException.getMessage(), ldapException));
+            future.complete(Utils.createError(ldapException.getMessage(), ldapException));
             return;
         }
         future.complete(array);
@@ -88,11 +94,30 @@ public class CustomSearchEntryListener implements AsyncSearchResultListener {
             ArrayType arrayType = (ArrayType) typeDesc.getDescribingType();
             array.append(ValueUtils.convert(entry, arrayType.getElementType()));
         } catch (Exception e) {
-            this.error = createError(e.getMessage(), e);
+            this.error = Utils.createError(e.getMessage(), e);
         }
     }
 
     @Override
     public void searchReferenceReturned(SearchResultReference searchReference) {
+    }
+
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        this.array = ValueCreator.createArrayValue((ArrayType) typeDesc.getDescribingType());
+        this.error = null;
+    }
+
+    public void setFuture(Future future) {
+        this.future = future;
+    }
+
+    public void setTypeDesc(BTypedesc typeDesc) {
+        this.typeDesc = typeDesc;
+        this.array = ValueCreator.createArrayValue((ArrayType) typeDesc.getDescribingType());
     }
 }
