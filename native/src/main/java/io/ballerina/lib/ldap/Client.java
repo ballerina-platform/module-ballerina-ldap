@@ -57,15 +57,6 @@ import java.util.Locale;
 
 import static com.unboundid.ldap.sdk.ResultCode.NO_SUCH_OBJECT;
 import static com.unboundid.ldap.sdk.ResultCode.OTHER;
-import static io.ballerina.lib.ldap.ModuleUtils.DIAGNOSTIC_MESSAGE;
-import static io.ballerina.lib.ldap.ModuleUtils.LDAP_RESPONSE;
-import static io.ballerina.lib.ldap.ModuleUtils.MATCHED_DN;
-import static io.ballerina.lib.ldap.ModuleUtils.NATIVE_CLIENT;
-import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_GUID;
-import static io.ballerina.lib.ldap.ModuleUtils.OBJECT_SID;
-import static io.ballerina.lib.ldap.ModuleUtils.OPERATION_TYPE;
-import static io.ballerina.lib.ldap.ModuleUtils.REFERRAL;
-import static io.ballerina.lib.ldap.ModuleUtils.RESULT_STATUS;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
 import static io.ballerina.lib.ldap.Utils.LDAP_CONNECTION_CLOSED_ERROR;
 import static io.ballerina.lib.ldap.Utils.convertObjectGUIDToString;
@@ -77,14 +68,28 @@ import static io.ballerina.lib.ldap.Utils.getSearchScope;
  * This class handles APIs of the LDAP client.
  */
 public class Client {
+    public static final BString RESULT_STATUS = StringUtils.fromString("resultCode");
+    public static final BString MATCHED_DN = StringUtils.fromString("matchedDN");
+    public static final BString DIAGNOSTIC_MESSAGE = StringUtils.fromString("diagnosticMessage");
+    public static final BString HOST_NAME =  StringUtils.fromString("hostName");
+    public static final BString PORT = StringUtils.fromString("port");
+    public static final BString DOMAIN_NAME = StringUtils.fromString("domainName");
+    public static final BString PASSWORD = StringUtils.fromString("password");
+    public static final String NATIVE_CLIENT = "client";
+    public static final String LDAP_RESPONSE = "LdapResponse";
+    public static final BString REFERRAL = StringUtils.fromString("referral");
+    public static final BString OPERATION_TYPE = StringUtils.fromString("operationType");
+    public static final String OBJECT_GUID = "objectGUID";
+    public static final String OBJECT_SID = "objectSid";
+
     private Client() {
     }
 
     public static BError initLdapConnection(BObject ldapClient, BMap<BString, Object> config) {
-        String hostName = ((BString) config.get(ModuleUtils.HOST_NAME)).getValue();
-        int port = Math.toIntExact(config.getIntValue(ModuleUtils.PORT));
-        String domainName = ((BString) config.get(ModuleUtils.DOMAIN_NAME)).getValue();
-        String password = ((BString) config.get(ModuleUtils.PASSWORD)).getValue();
+        String hostName = ((BString) config.get(HOST_NAME)).getValue();
+        int port = Math.toIntExact(config.getIntValue(PORT));
+        String domainName = ((BString) config.get(DOMAIN_NAME)).getValue();
+        String password = ((BString) config.get(PASSWORD)).getValue();
         try {
             LDAPConnection ldapConnection = new LDAPConnection(hostName, port, domainName, password);
             ldapClient.addNativeData(NATIVE_CLIENT, ldapConnection);
@@ -302,14 +307,12 @@ public class Client {
 
     public static BMap<BString, Object> generateLdapResponse(LDAPResult ldapResult) {
         BMap<BString, Object> response = ValueCreator.createRecordValue(ModuleUtils.getModule(), LDAP_RESPONSE);
-        response.put(StringUtils.fromString(MATCHED_DN), StringUtils.fromString(ldapResult.getMatchedDN()));
-        response.put(StringUtils.fromString(RESULT_STATUS),
-                StringUtils.fromString(ldapResult.getResultCode().getName().toUpperCase(Locale.ROOT)));
-        response.put(StringUtils.fromString(DIAGNOSTIC_MESSAGE),
-                StringUtils.fromString(ldapResult.getDiagnosticMessage()));
-        response.put(StringUtils.fromString(REFERRAL), convertToStringArray(ldapResult.getReferralURLs()));
-        response.put(StringUtils.fromString(OPERATION_TYPE),
-                StringUtils.fromString(ldapResult.getOperationType().name()));
+        response.put(MATCHED_DN, StringUtils.fromString(ldapResult.getMatchedDN()));
+        response.put(RESULT_STATUS,
+                     StringUtils.fromString(ldapResult.getResultCode().getName().toUpperCase(Locale.ROOT)));
+        response.put(DIAGNOSTIC_MESSAGE, StringUtils.fromString(ldapResult.getDiagnosticMessage()));
+        response.put(REFERRAL, convertToStringArray(ldapResult.getReferralURLs()));
+        response.put(OPERATION_TYPE, StringUtils.fromString(ldapResult.getOperationType().name()));
         return response;
     }
 }

@@ -20,8 +20,6 @@ package io.ballerina.lib.ldap;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BString;
 
 /**
  * Utility functions of the LDAP module.
@@ -29,21 +27,6 @@ import io.ballerina.runtime.api.values.BString;
  * @since 0.1.0
  */
 public final class ModuleUtils {
-
-    public static final BString HOST_NAME =  StringUtils.fromString("hostName");
-    public static final BString PORT = StringUtils.fromString("port");
-    public static final BString DOMAIN_NAME = StringUtils.fromString("domainName");
-    public static final BString PASSWORD = StringUtils.fromString("password");
-
-    public static final String NATIVE_CLIENT = "client";
-    public static final String LDAP_RESPONSE = "LdapResponse";
-    public static final String RESULT_STATUS = "resultCode";
-    public static final String MATCHED_DN = "matchedDN";
-    public static final String DIAGNOSTIC_MESSAGE = "diagnosticMessage";
-    public static final String REFERRAL = "referral";
-    public static final String OPERATION_TYPE = "operationType";
-    public static final String OBJECT_GUID = "objectGUID";
-    public static final String OBJECT_SID = "objectSid";
 
     private ModuleUtils() {}
 
