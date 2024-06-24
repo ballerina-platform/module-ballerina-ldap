@@ -67,7 +67,7 @@ import static io.ballerina.lib.ldap.Utils.getSearchScope;
 /**
  * This class handles APIs of the LDAP client.
  */
-public class Client {
+public final class Client {
     public static final BString RESULT_STATUS = StringUtils.fromString("resultCode");
     public static final BString MATCHED_DN = StringUtils.fromString("matchedDN");
     public static final BString DIAGNOSTIC_MESSAGE = StringUtils.fromString("diagnosticMessage");
