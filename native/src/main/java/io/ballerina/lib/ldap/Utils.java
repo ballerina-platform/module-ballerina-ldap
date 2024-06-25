@@ -81,8 +81,8 @@ public final class Utils {
     }
 
     private static BMap<BString, Object> getErrorDetails(Throwable throwable) {
-        if (throwable instanceof LDAPException) {
-            String resultCode = ((LDAPException) throwable).getResultCode().getName().toUpperCase(Locale.ROOT);
+        if (throwable instanceof LDAPException ldapException) {
+            String resultCode = ldapException.getResultCode().getName().toUpperCase(Locale.ROOT);
             return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS, Map.of(RESULT_STATUS, resultCode));
         }
         return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
