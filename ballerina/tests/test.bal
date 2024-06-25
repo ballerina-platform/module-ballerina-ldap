@@ -35,7 +35,7 @@ final Client ldapClient = check new ({
    groups: ["add"]
 }
 public function testAddUser() returns error? {
-   record {|EntryMember...;|} user = {
+   record {|AttributeType...;|} user = {
        "objectClass": ["top", "person"],
        "sn": "User",
        "cn": "User"
@@ -48,7 +48,7 @@ public function testAddUser() returns error? {
    dependsOn: [testAddUser]
 }
 public function testAddSecondaryUser() returns error? {
-   record {|EntryMember...;|} user = {
+   record {|AttributeType...;|} user = {
        "objectClass": ["top", "person"],
        "sn": "New User",
        "cn": "New User"
@@ -94,7 +94,7 @@ public function testAddAlreadyExistingUser() returns error? {
    dependsOn: [testAddAlreadyExistingUser]
 }
 public function testUpdateUser() returns error? {
-   record {|EntryMember...;|} user = {
+   record {|AttributeType...;|} user = {
        "sn": "Updated User"
    };
    LdapResponse response = check ldapClient->modify(userDN, user);

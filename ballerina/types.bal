@@ -89,10 +89,10 @@ public enum SearchScope {
 };
 
 # Attribute type of an LDAP entry.
-public type EntryMember boolean|int|float|decimal|string|string[];
+public type AttributeType boolean|int|float|decimal|string|string[];
 
 # LDAP entry type.
-public type Entry record{|EntryMember...;|};
+public type Entry record{|AttributeType...;|};
 
 # A record for an entry that represents a person.
 #

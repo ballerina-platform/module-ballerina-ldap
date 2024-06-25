@@ -39,12 +39,12 @@ type UserConfig record {
     string userAccountControl?;
 };
 
-record {|EntryMember...;|} user = {
+record {|AttributeType...;|} user = {
     "sn": "Timothy",
     "objectClass": ["person", "top"]
 };
 
-record {|EntryMember...;|} updateUser = {
+record {|AttributeType...;|} updateUser = {
     "objectClass": ["person", "top"],
     "sn": "Updated User"
 };
