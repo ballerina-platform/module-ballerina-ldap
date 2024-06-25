@@ -61,7 +61,6 @@ public final class Utils {
     public static final String ENTRIES = "entries";
     public static final String ENTRY = "Entry";
     public static final String RESULT_STATUS = "resultCode";
-    public static final String ERROR_MESSAGE = "message";
     public static final String MESSAGE_ID = "messageId";
     public static final String URIS = "uris";
     public static final String CONTROLS = "controls";
@@ -69,23 +68,25 @@ public final class Utils {
     public static final String OID = "oid";
     public static final String IS_CRITICAL = "isCritical";
     public static final String VALUE = "value";
-    public static final String ENTRY_NOT_FOUND = "LDAP entry is not found for DN: ";
+    public static final String ENTRY_NOT_FOUND = "Entry is not found for DN: '";
     public static final String SID_REVISION_ERROR = "objectSid revision must be 1";
     public static final String OBJECT_GUID_LENGTH_ERROR = "objectGUID must be a 16-byte array";
     public static final String LDAP_CONNECTION_CLOSED_ERROR = "LDAP Connection has been closed";
 
     public static BError createError(String message, Throwable throwable) {
         BError cause = (throwable == null) ? null : ErrorCreator.createError(throwable);
-        BMap<BString, Object> errorDetails = getErrorDetails(throwable);
+        return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, null);
+    }
+
+    public static BError createError(String message, LDAPException ldapException) {
+        BError cause = (ldapException == null) ? null : ErrorCreator.createError(ldapException);
+        BMap<BString, Object> errorDetails = getErrorDetails(Objects.requireNonNull(ldapException));
         return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, errorDetails);
     }
 
-    private static BMap<BString, Object> getErrorDetails(Throwable throwable) {
-        if (throwable instanceof LDAPException ldapException) {
-            String resultCode = ldapException.getResultCode().getName().toUpperCase(Locale.ROOT);
-            return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS, Map.of(RESULT_STATUS, resultCode));
-        }
-        return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS);
+    private static BMap<BString, Object> getErrorDetails(LDAPException ldapException) {
+        String resultCode = ldapException.getResultCode().getName().toUpperCase(Locale.ROOT);
+        return ValueCreator.createRecordValue(getModule(), ERROR_DETAILS, Map.of(RESULT_STATUS, resultCode));
     }
 
     public static BMap<BString, Object> createSearchResultRecord(SearchResult searchResult,

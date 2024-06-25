@@ -107,6 +107,8 @@ public final class Client {
             AddRequest addRequest = generateAddRequest(dN, entry);
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncAdd(addRequest, customAsyncResultListener);
+        } catch (LDAPException e) {
+            future.complete(Utils.createError(e.getMessage(), e));
         } catch (Exception e) {
             future.complete(Utils.createError(e.getMessage(), e));
         }
@@ -149,6 +151,8 @@ public final class Client {
             validateConnection(ldapConnection);
             CustomAsyncResultListener customAsyncResultListener = new CustomAsyncResultListener(future);
             ldapConnection.asyncDelete(new DeleteRequest(dN.getValue()), customAsyncResultListener);
+        } catch (LDAPException e) {
+            future.complete(Utils.createError(e.getMessage(), e));
         } catch (Exception e) {
             future.complete(Utils.createError(e.getMessage(), e));
         }
@@ -186,7 +190,7 @@ public final class Client {
             validateConnection(ldapConnection);
             SearchResultEntry userEntry = ldapConnection.getEntry(dN.getValue());
             if (userEntry == null) {
-                return Utils.createError(ENTRY_NOT_FOUND + dN, new LDAPException(NO_SUCH_OBJECT));
+                return Utils.createError(ENTRY_NOT_FOUND + dN + "'", new LDAPException(NO_SUCH_OBJECT));
             }
             for (Attribute attribute : userEntry.getAttributes()) {
                 processAttribute(attribute, entry);

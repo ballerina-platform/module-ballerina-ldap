@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.lib.ldap.Client.processAttribute;
+import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
 
 /**
  * Callback class to handle search results asynchronously.
@@ -65,7 +66,7 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
             return;
         }
         if (entries.isEmpty()) {
-            String errorMessage = "ENTRY_NOT_FOUND " + dN;
+            String errorMessage = ENTRY_NOT_FOUND + dN + "'";
             LDAPException ldapException = new LDAPException(ResultCode.OTHER, errorMessage);
             future.complete(Utils.createError(ldapException.getMessage(), ldapException));
             return;
