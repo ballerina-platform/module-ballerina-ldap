@@ -1,10 +1,10 @@
 # Ballerina LDAP Connector
 
 [![Build](https://github.com/ballerina-platform/module-ballerina-ldap/actions/workflows/build-timestamped-master.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-ldap/actions/workflows/build-timestamped-master.yml)
-[![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-ldap/branch/main/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-ldap)
+[![codecov](https://codecov.io/gh/ballerina-platform/module-ballerina-ldap/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/module-ballerina-ldap)
 [![Trivy](https://github.com/ballerina-platform/module-ballerina-ldap/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-ldap/actions/workflows/trivy-scan.yml)
 [![GraalVM Check](https://github.com/ballerina-platform/module-ballerina-ldap/actions/workflows/build-with-bal-test-graalvm.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerina-ldap/actions/workflows/build-with-bal-test-graalvm.yml)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-ldap.svg)](https://github.com/ballerina-platform/module-ballerina-ldap/commits/main)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-ldap.svg)](https://github.com/ballerina-platform/module-ballerina-ldap/commits/master)
 [![Github issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-standard-library/module/ldap.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-standard-library/labels/module%ldap)
 
 LDAP (Lightweight Directory Access Protocol) is a vendor-neutral software protocol for accessing and maintaining distributed directory information services. It allows users to locate organizations, individuals, and other resources such as files and devices in a network. LDAP is used in various applications for directory-based authentication and authorization.
