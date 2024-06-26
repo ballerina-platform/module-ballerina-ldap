@@ -62,7 +62,7 @@ public function main() returns error? {
 
 #### `modifyDN` API
 
-Updates information of an entry.
+Renames an entry in a directory server.
 
 ```ballerina
 import ballerina/ldap;

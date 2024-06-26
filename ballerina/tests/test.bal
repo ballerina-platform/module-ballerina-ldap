@@ -22,322 +22,274 @@ configurable string domainName = ?;
 configurable string password = ?;
 configurable string userDN = ?;
 
-boolean isTestOnLiveServer = false;
+final Client ldapClient = check new ({
+   hostName,
+   port,
+   domainName,
+   password
+});
 
-Client ldapClient = test:mock(Client);
-
-@test:BeforeSuite
-function initializeClientsForCalendarServer () returns error? {
-    if isTestOnLiveServer {
-        ldapClient = check new ({
-            hostName: hostName,
-            port: port,
-            domainName: domainName,
-            password: password
-        });
-    }
-}
-
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testAddUser() returns error? {
-    UserConfig user = {
-        "objectClass": ["user", organizationalPerson, "person", "top"],
-        sn: "User",
-        cn: "User",
-        givenName: "User",
-        displayName: "User",
-        userPrincipalName: "user@ad.windows",
-        userAccountControl: "544"
-    };
-    LdapResponse val = check ldapClient->add("CN=User,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   record {|AttributeType...;|} user = {
+       "objectClass": ["top", "person"],
+       "sn": "User",
+       "cn": "User"
+   };
+   LdapResponse addResponse = check ldapClient->add("cn=User,dc=mycompany,dc=com", user);
+   test:assertEquals(addResponse.resultCode, SUCCESS);
 }
 
 @test:Config {
-    enable: false,
-    dependsOn: [testAddUser]
+   dependsOn: [testAddUser]
 }
-public function testAddUserWithManager() returns error? {
-    record {} user = {
-        "objectClass": "user",
-        "sn": "New User",
-        "cn": "New User",
-        "givenName": "New User",
-        "displayName": "New User",
-        "userPrincipalName": "newuser@ad.windows",
-        "userAccountControl": "544",
-        "manager": "CN=User,OU=People,DC=ad,DC=windows"
-    };
-    LdapResponse addResult = check ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(addResult.resultCode, SUCCESS);
+public function testAddSecondaryUser() returns error? {
+   record {|AttributeType...;|} user = {
+       "objectClass": ["top", "person"],
+       "sn": "New User",
+       "cn": "New User"
+   };
+   LdapResponse addResult = check ldapClient->add("CN=New User,dc=mycompany,dc=com", user);
+   test:assertEquals(addResult.resultCode, SUCCESS);
 }
 
 @test:Config {
-    enable: false,
-    dependsOn: [testGetUser]
+   dependsOn: [testGetUser]
 }
 public function testDeleteUserHavingManager() returns error? {
-    LdapResponse val = check ldapClient->delete("CN=New User,OU=People,DC=ad,DC=windows");
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->delete("CN=New User,dc=mycompany,dc=com");
+   test:assertEquals(response.resultCode, SUCCESS);
 }
 
 @test:Config {
-    enable: false,
-    dependsOn: [testDeleteUserHavingManager]
+   dependsOn: [testDeleteUserHavingManager]
 }
 public function testDeleteUser() returns error? {
-    LdapResponse val = check ldapClient->delete("CN=User,OU=People,DC=ad,DC=windows");
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->delete("CN=User,dc=mycompany,dc=com");
+   test:assertEquals(response.resultCode, SUCCESS);
 }
 
 @test:Config {
-    enable: false,
-    dependsOn: [testAddUserWithManager]
+   dependsOn: [testAddSecondaryUser]
 }
 public function testAddAlreadyExistingUser() returns error? {
-    UserConfig user = {
-        objectClass: "user",
-        sn: "New User",
-        cn: "New User",
-        givenName: "New User",
-        displayName: "New User",
-        userPrincipalName: "newuser@ad.windows"
-    };
-    LdapResponse|Error val = ldapClient->add("CN=New User,OU=People,DC=ad,DC=windows", user);
-    test:assertTrue(val is Error);
-    if val is Error {
-        ErrorDetails errorDetails = val.detail();
-        test:assertEquals(errorDetails.resultCode, "ENTRY ALREADY EXISTS");
-    }
+   Entry user = {
+       "objectClass": ["top", "person"],
+       "sn": "New User",
+       "cn": "New User"
+   };
+   LdapResponse|Error response = ldapClient->add("CN=New User,dc=mycompany,dc=com", user);
+   test:assertTrue(response is Error);
+   if response is Error {
+       ErrorDetails errorDetails = response.detail();
+       test:assertEquals(errorDetails.resultCode, "ENTRY ALREADY EXISTS");
+   }
 }
 
 @test:Config {
-    enable: false,
-    dependsOn: [testAddAlreadyExistingUser]
+   dependsOn: [testAddAlreadyExistingUser]
 }
 public function testUpdateUser() returns error? {
-    record {} user = {
-        "sn": "User",
-        "givenName": "Updated User",
-        "displayName": "Updated User",
-        "manager": "CN=New User,OU=People,DC=ad,DC=windows"
-    };
-    LdapResponse val = check ldapClient->modify(userDN, user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   record {|AttributeType...;|} user = {
+       "sn": "Updated User"
+   };
+   LdapResponse response = check ldapClient->modify(userDN, user);
+   test:assertEquals(response.resultCode, SUCCESS);
 }
 
 @test:Config {
-    enable: false,
-    dependsOn: [testUpdateUserWithNullValues]
+   dependsOn: [testUpdateUserWithNullValues]
 }
 public function testGetUser() returns error? {
-    UserConfig value = check ldapClient->getEntry(userDN);
-    test:assertEquals(value?.givenName, "Updated User");
+   UserConfig value = check ldapClient->getEntry(userDN);
+   test:assertEquals(value?.sn, "Updated User");
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testInvalidClient() returns error? {
-    Client|Error ldapClient = new ({
-        hostName: "111.111.11.111",
-        port: port,
-        domainName: domainName,
-        password: password
-    });
-    test:assertTrue(ldapClient is Error);
+   Client|Error ldapClient = new ({
+       hostName: "111.111.11.111",
+       port: port,
+       domainName: domainName,
+       password: password
+   });
+   test:assertTrue(ldapClient is Error);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testInvalidDomainInClient() {
-    Client|Error ldapClient = new ({
-        hostName: hostName,
-        port: port,
-        domainName: "invalid@ad.invalid",
-        password: password
-    });
-    test:assertTrue(ldapClient is Error);
+   Client|Error ldapClient = new ({
+       hostName: hostName,
+       port: port,
+       domainName: "invalid@ad.invalid",
+       password: password
+   });
+   test:assertTrue(ldapClient is Error);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testGetInvalidUser() returns error? {
-    UserConfig|Error value = ldapClient->getEntry("CN=Invalid User,OU=People,DC=ad,DC=windows");
-    test:assertTrue(value is Error);
+   UserConfig|Error value = ldapClient->getEntry("CN=Invalid User,dc=mycompany,dc=com");
+   test:assertTrue(value is Error);
 }
 
 @test:Config {
-    enable: false,
-    dependsOn: [testUpdateUser]
+   dependsOn: [testUpdateUser]
 }
 public function testUpdateUserWithNullValues() returns error? {
-    LdapResponse val = check ldapClient->modify(userDN, updateUser);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->modify(userDN, updateUser);
+   test:assertEquals(response.resultCode, SUCCESS);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testAddUserWithNullValues() returns error? {
-    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
+   test:assertEquals(response.resultCode, SUCCESS);
 
-    LdapResponse delete = check ldapClient->delete("CN=Test User1,OU=People,DC=ad,DC=windows");
-    test:assertEquals(delete.resultCode, SUCCESS);
+
+   LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testCompareAttributeValues() returns error? {
-    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
+   test:assertEquals(response.resultCode, SUCCESS);
 
-    LdapResponse compare = check ldapClient->compare("CN=Test User1,OU=People,DC=ad,DC=windows", "givenName", "Test User1");
-    test:assertEquals(compare.resultCode, COMPARE_TRUE);
 
-    LdapResponse modifyDN = check ldapClient->modifyDN("CN=Test User1,OU=People,DC=ad,DC=windows", "CN=Test User2", true);
-    test:assertEquals(modifyDN.resultCode, SUCCESS);
+   boolean compare = check ldapClient->compare("CN=Test User1,dc=mycompany,dc=com", "sn", "Timothy");
+   test:assertEquals(compare, true);
 
-    LdapResponse delete = check ldapClient->delete("CN=Test User2,OU=People,DC=ad,DC=windows");
-    test:assertEquals(delete.resultCode, SUCCESS);
+
+   LdapResponse modifyDN = check ldapClient->modifyDn("CN=Test User1,dc=mycompany,dc=com", "CN=Test User2", true);
+   test:assertEquals(modifyDN.resultCode, SUCCESS);
+
+
+   LdapResponse delete = check ldapClient->delete("CN=Test User2,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testSearchWithType() returns error? {
-    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
+   test:assertEquals(response.resultCode, SUCCESS);
 
-    UserConfig[] value = check ldapClient->searchWithType("DC=ad,DC=windows", "(givenName=Test User1)", SUB);
-    test:assertEquals(value.length(), 1);
-    test:assertEquals(value[0].objectClass, ["top","person","organizationalPerson","user"]);
 
-    LdapResponse delete = check ldapClient->delete("CN=Test User1,OU=People,DC=ad,DC=windows");
-    test:assertEquals(delete.resultCode, SUCCESS);
+   UserConfig[] value = check ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
+   test:assertEquals(value.length(), 1);
+   test:assertEquals(value[0].objectClass, ["person", "top"]);
+
+
+   LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testSearchUser() returns error? {
-    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
+   test:assertEquals(response.resultCode, SUCCESS);
 
-    SearchResult value = check ldapClient->search("DC=ad,DC=windows", "(givenName=Test User1)", SUB);
-    test:assertEquals(value.resultCode, SUCCESS);
-    test:assertEquals((<Entry[]>value.entries).length(), 1);
-    test:assertEquals((<Entry[]>value.entries)[0]["objectClass"], ["top","person","organizationalPerson","user"]);
-    test:assertTrue((<SearchReference[]>value.searchReferences).length() > 0);
 
-    LdapResponse delete = check ldapClient->delete("CN=Test User1,OU=People,DC=ad,DC=windows");
-    test:assertEquals(delete.resultCode, SUCCESS);
+   SearchResult value = check ldapClient->search("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
+   test:assertEquals(value.resultCode, SUCCESS);
+   test:assertEquals((<Entry[]>value.entries).length(), 1);
+   test:assertEquals((<Entry[]>value.entries)[0]["objectClass"], ["person", "top"]);
+   test:assertTrue(value?.searchReferences is ());
+
+
+   LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testSearchNonExistingUsers() returns error? {
-    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
+   test:assertEquals(response.resultCode, SUCCESS);
 
-    SearchResult|Error value = ldapClient->search("DC=ad,DC=windows", "(givenName=Non existent)", SUB);
-    test:assertTrue(value is Error);
-    if value is Error {
-        ErrorDetails errorDetails = value.detail();
-        test:assertEquals(errorDetails.resultCode, OTHER);
-    }
 
-    LdapResponse delete = check ldapClient->delete("CN=Test User1,OU=People,DC=ad,DC=windows");
-    test:assertEquals(delete.resultCode, SUCCESS);
+   SearchResult|Error value = ldapClient->search("dc=mycompany,dc=com", "(givenName=Non existent)", SUB);
+   test:assertTrue(value is Error);
+   if value is Error {
+       ErrorDetails errorDetails = value.detail();
+       test:assertEquals(errorDetails.resultCode, OTHER);
+   }
+
+
+   LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testAddingUserWithClosedClient() returns error? {
-    Client ldapClient1 = check new ({
-        hostName: hostName,
-        port: port,
-        domainName: domainName,
-        password: password
-    });
-    ldapClient1->close();
-    boolean isConnected = ldapClient1->isConnected();
-    test:assertTrue(!isConnected);
-    LdapResponse|Error val = ldapClient1->add("CN=Test User12,OU=People,DC=ad,DC=windows", user);
-    test:assertTrue(val is Error);
-    if val is Error {
-        ErrorDetails errorDetails = val.detail();
-        test:assertEquals(errorDetails.resultCode, OTHER);
-        test:assertEquals(errorDetails.message, "LDAP Connection has been closed");
-    }
+   Client ldapClient1 = check new ({
+       hostName: hostName,
+       port: port,
+       domainName: domainName,
+       password: password
+   });
+   ldapClient1->close();
+   boolean isConnected = ldapClient1->isConnected();
+   test:assertTrue(!isConnected);
+   LdapResponse|Error response = ldapClient1->add("CN=Test User12,dc=mycompany,dc=com", user);
+   test:assertTrue(response is Error);
+   if response is Error {
+       ErrorDetails errorDetails = response.detail();
+       test:assertEquals(errorDetails.resultCode, OTHER);
+   }
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testModifyingUserWithClosedClient() returns error? {
-    Client ldapClient1 = check new ({
-        hostName: hostName,
-        port: port,
-        domainName: domainName,
-        password: password
-    });
-    ldapClient1->close();
-    boolean isConnected = ldapClient1->isConnected();
-    test:assertTrue(!isConnected);
-    LdapResponse|Error val = ldapClient1->modify(userDN, updateUser);
-    test:assertTrue(val is Error);
-    if val is Error {
-        ErrorDetails errorDetails = val.detail();
-        test:assertEquals(errorDetails.resultCode, OTHER);
-        test:assertEquals(errorDetails.message, "LDAP Connection has been closed");
-    }
+   Client ldapClient1 = check new ({
+       hostName: hostName,
+       port: port,
+       domainName: domainName,
+       password: password
+   });
+   ldapClient1->close();
+   boolean isConnected = ldapClient1->isConnected();
+   test:assertTrue(!isConnected);
+   LdapResponse|Error response = ldapClient1->modify(userDN, updateUser);
+   test:assertTrue(response is Error);
+   if response is Error {
+       ErrorDetails errorDetails = response.detail();
+       test:assertEquals(errorDetails.resultCode, OTHER);
+   }
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testModifyDN() returns error? {
-    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
+   test:assertEquals(response.resultCode, SUCCESS);
 
-    LdapResponse modifyDN = check ldapClient->modifyDN("CN=Test User1,OU=People,DC=ad,DC=windows", "CN=Test User2", true);
-    test:assertEquals(modifyDN.resultCode, SUCCESS);
 
-    LdapResponse delete = check ldapClient->delete("CN=Test User2,OU=People,DC=ad,DC=windows");
-    test:assertEquals(delete.resultCode, SUCCESS);
+   LdapResponse modifyDN = check ldapClient->modifyDn("CN=Test User1,dc=mycompany,dc=com", "CN=Test User2", true);
+   test:assertEquals(modifyDN.resultCode, SUCCESS);
+
+
+   LdapResponse delete = check ldapClient->delete("CN=Test User2,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testModifyDnInNonExistingUser() {
-    LdapResponse|Error modifyDN = ldapClient->modifyDN("CN=Non Existing User,OU=People,DC=ad,DC=windows", "CN=Test User2", true);
-    test:assertTrue(modifyDN is Error);
-    if modifyDN is Error {
-        ErrorDetails errorDetails = modifyDN.detail();
-        test:assertEquals(errorDetails.resultCode, NO_SUCH_OBJECT);
-    }
+   LdapResponse|Error modifyDN = ldapClient->modifyDn("CN=Non Existing User,dc=mycompany,dc=com", "CN=Test User2", true);
+   test:assertTrue(modifyDN is Error);
+   if modifyDN is Error {
+       ErrorDetails errorDetails = modifyDN.detail();
+       test:assertEquals(errorDetails.resultCode, NO_SUCH_OBJECT);
+   }
 }
 
-@test:Config {
-    enable: false
-}
+@test:Config {}
 public function testSearchWithInvalidType() returns error? {
-    LdapResponse val = check ldapClient->add("CN=Test User1,OU=People,DC=ad,DC=windows", user);
-    test:assertEquals(val.resultCode, SUCCESS);
+   LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
+   test:assertEquals(response.resultCode, SUCCESS);
 
-    record {|string id;|}[]|Error value = ldapClient->searchWithType("DC=ad,DC=windows", "(givenName=Test User1)", SUB);
-    test:assertTrue(value is Error);
-    test:assertEquals((<Error>value).message(), "{ballerina}ConversionError");
-    LdapResponse delete = check ldapClient->delete("CN=Test User1,OU=People,DC=ad,DC=windows");
-    test:assertEquals(delete.resultCode, SUCCESS);
+
+   record {|string id;|}[]|Error value = ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
+   test:assertTrue(value is Error);
+   test:assertEquals((<Error>value).message(), "{ballerina}ConversionError");
+   LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
 }

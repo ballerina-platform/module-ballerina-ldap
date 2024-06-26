@@ -93,11 +93,80 @@ clean {
     delete 'build'
 }
 
+task startLdapServer() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=openldap-server"
+                standardOutput = stdOut
+            }
+            if (!stdOut.toString().contains("openldap-server")) {
+                println "Starting LDAP server."
+                exec {
+                    commandLine 'sh', '-c', "docker-compose -f $project.projectDir/tests/resources/openldap/docker-compose.yml up -d"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                println "Waiting 15s until the LDAP server get initiated."
+                sleep(15 * 1000)
+            } else {
+                println "LDAP server is already started."
+            }
+        }
+    }
+}
+
+task stopLdapServer() {
+    doLast {
+        if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def stdOut = new ByteArrayOutputStream()
+            exec {
+                commandLine 'sh', '-c', "docker ps --filter name=openldap-server"
+                standardOutput = stdOut
+            }
+            if (stdOut.toString().contains("openldap-server")) {
+                println "Stopping LDAP server."
+                exec {
+                    commandLine 'sh', '-c', "docker stop openldap-server"
+                    standardOutput = stdOut
+                }
+                println stdOut.toString()
+                println "Waiting 5s until the LDAP server get stopped."
+                sleep(5 * 1000)
+            } else {
+                println "LDAP server is not started."
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact source: createArtifactZip, extension: 'zip'
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ballerina-platform/module-ballerina-ldap")
+            credentials {
+                username = System.getenv("publishUser")
+                password = System.getenv("publishPAT")
+            }
+        }
+    }
+}
+
 updateTomlFiles.dependsOn copyStdlibs
 build.dependsOn copyToLib
 
 test.dependsOn ":${packageName}-native:build"
 build.dependsOn ":${packageName}-native:build"
+build.dependsOn startLdapServer
+build.finalizedBy stopLdapServer
 
 publishToMavenLocal.dependsOn build
 publish.dependsOn build

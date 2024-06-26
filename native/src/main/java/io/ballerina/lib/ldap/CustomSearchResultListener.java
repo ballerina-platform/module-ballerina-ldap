@@ -30,25 +30,29 @@ import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.lib.ldap.Ldap.processAttribute;
+import static io.ballerina.lib.ldap.Client.processAttribute;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
-import static io.ballerina.lib.ldap.Utils.createEntryRecord;
-import static io.ballerina.lib.ldap.Utils.createError;
 
 /**
  * Callback class to handle search results asynchronously.
  */
 public class CustomSearchResultListener implements AsyncSearchResultListener {
-    private final Future future;
-    private final List<BMap<BString, Object>> references;
-    private final List<BMap<BString, Object>> entries;
-    private final String distinguishedName;
+    @Serial
+    private static final long serialVersionUID = 1L;
+    private transient Future future;
+    private transient List<BMap<BString, Object>> references;
+    private transient List<BMap<BString, Object>> entries;
+    private final String dN;
 
-    public CustomSearchResultListener(Future future, String distinguishedName) {
-        this.distinguishedName = distinguishedName;
+    public CustomSearchResultListener(Future future, String dN) {
+        this.dN = dN;
         this.future = future;
         this.references = new ArrayList<>();
         this.entries = new ArrayList<>();
@@ -62,9 +66,9 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
             return;
         }
         if (entries.isEmpty()) {
-            String errorMessage = ENTRY_NOT_FOUND + distinguishedName;
+            String errorMessage = String.format(ENTRY_NOT_FOUND, dN);
             LDAPException ldapException = new LDAPException(ResultCode.OTHER, errorMessage);
-            future.complete(createError(ldapException.getMessage(), ldapException));
+            future.complete(Utils.createError(ldapException.getMessage(), ldapException));
             return;
         }
         future.complete(Utils.createSearchResultRecord(searchResult, references, entries));
@@ -72,7 +76,7 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
 
     @Override
     public void searchEntryReturned(SearchResultEntry searchEntry) {
-        BMap<BString, Object> entry = createEntryRecord();
+        BMap<BString, Object> entry = Utils.createEntryRecord();
         for (Attribute attribute : searchEntry.getAttributes()) {
             processAttribute(attribute, entry);
         }
@@ -82,5 +86,21 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
     @Override
     public void searchReferenceReturned(SearchResultReference searchReference) {
         references.add(Utils.createSearchReferenceRecord(searchReference));
+    }
+
+    @Serial
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.defaultWriteObject();
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        this.references = new ArrayList<>();
+        this.entries = new ArrayList<>();
+    }
+
+    public void setFuture(Future future) {
+        this.future = future;
     }
 }

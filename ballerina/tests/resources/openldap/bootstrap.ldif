@@ -1,0 +1,44 @@
+dn: ou=Users,dc=mycompany,dc=com
+changetype: add
+objectClass: organizationalUnit
+ou: Users
+
+dn: ou=Groups,dc=mycompany,dc=com
+changetype: add
+objectClass: organizationalUnit
+ou: Groups
+
+dn: uid=ldclakmal,ou=Users,dc=mycompany,dc=com
+changetype: add
+objectClass: inetOrgPerson
+cn: John
+givenName: John
+sn: John
+uid: john
+displayName: John Doe
+mail: johndoe@gmail.com
+userpassword: johndoe@123
+
+dn: uid=alice,ou=Users,dc=mycompany,dc=com
+changetype: add
+objectClass: inetOrgPerson
+cn: Test Developer
+givenName: Alice
+sn: Parker
+uid: alice
+displayName: Alice Parker
+mail: alice@gmail.com
+userpassword: alice@123
+
+dn: cn=admin,ou=Groups,dc=mycompany,dc=com
+changetype: add
+cn: admin
+objectClass: groupOfNames
+member: uid=johndoe,ou=Users,dc=mycompany,dc=com
+
+dn: cn=developer,ou=Groups,dc=mycompany,dc=com
+changetype: add
+cn: developer
+objectClass: groupOfNames
+member: uid=johndoe,ou=Users,dc=mycompany,dc=com
+member: uid=alice,ou=Users,dc=mycompany,dc=com
