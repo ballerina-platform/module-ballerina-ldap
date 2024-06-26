@@ -22,8 +22,6 @@ configurable string domainName = ?;
 configurable string password = ?;
 configurable string userDN = ?;
 
-boolean isTestOnLiveServer = false;
-
 final Client ldapClient = check new ({
    hostName,
    port,
@@ -31,9 +29,7 @@ final Client ldapClient = check new ({
    password
 });
 
-@test:Config {
-   groups: ["add"]
-}
+@test:Config {}
 public function testAddUser() returns error? {
    record {|AttributeType...;|} user = {
        "objectClass": ["top", "person"],
