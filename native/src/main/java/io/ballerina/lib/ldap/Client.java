@@ -191,7 +191,7 @@ public final class Client {
             validateConnection(ldapConnection);
             SearchResultEntry userEntry = ldapConnection.getEntry(dN.getValue());
             if (Objects.isNull(userEntry)) {
-                return Utils.createError(ENTRY_NOT_FOUND + dN + "'", new LDAPException(NO_SUCH_OBJECT));
+                return Utils.createError(String.format(ENTRY_NOT_FOUND, dN), new LDAPException(NO_SUCH_OBJECT));
             }
             for (Attribute attribute : userEntry.getAttributes()) {
                 processAttribute(attribute, entry);

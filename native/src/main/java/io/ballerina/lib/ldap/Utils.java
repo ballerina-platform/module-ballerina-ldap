@@ -68,7 +68,7 @@ public final class Utils {
     public static final String OID = "oid";
     public static final String IS_CRITICAL = "isCritical";
     public static final String VALUE = "value";
-    public static final String ENTRY_NOT_FOUND = "Entry is not found for DN: '";
+    public static final String ENTRY_NOT_FOUND = "Entry is not found for DN: '%s'";
     public static final String SID_REVISION_ERROR = "objectSid revision must be 1";
     public static final String OBJECT_GUID_LENGTH_ERROR = "objectGUID must be a 16-byte array";
     public static final String LDAP_CONNECTION_CLOSED_ERROR = "LDAP Connection has been closed";

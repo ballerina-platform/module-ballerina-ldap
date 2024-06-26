@@ -66,7 +66,7 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
             return;
         }
         if (entries.isEmpty()) {
-            String errorMessage = ENTRY_NOT_FOUND + dN + "'";
+            String errorMessage = String.format(ENTRY_NOT_FOUND, dN);
             LDAPException ldapException = new LDAPException(ResultCode.OTHER, errorMessage);
             future.complete(Utils.createError(ldapException.getMessage(), ldapException));
             return;
