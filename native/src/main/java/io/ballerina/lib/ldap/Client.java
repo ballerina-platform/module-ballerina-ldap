@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import static com.unboundid.ldap.sdk.ResultCode.NO_SUCH_OBJECT;
 import static com.unboundid.ldap.sdk.ResultCode.OTHER;
@@ -189,7 +190,7 @@ public final class Client {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
             validateConnection(ldapConnection);
             SearchResultEntry userEntry = ldapConnection.getEntry(dN.getValue());
-            if (userEntry == null) {
+            if (Objects.isNull(userEntry)) {
                 return Utils.createError(ENTRY_NOT_FOUND + dN + "'", new LDAPException(NO_SUCH_OBJECT));
             }
             for (Attribute attribute : userEntry.getAttributes()) {

@@ -74,12 +74,12 @@ public final class Utils {
     public static final String LDAP_CONNECTION_CLOSED_ERROR = "LDAP Connection has been closed";
 
     public static BError createError(String message, Throwable throwable) {
-        BError cause = (throwable == null) ? null : ErrorCreator.createError(throwable);
+        BError cause = Objects.isNull(throwable) ? null : ErrorCreator.createError(throwable);
         return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, null);
     }
 
     public static BError createError(String message, LDAPException ldapException) {
-        BError cause = (ldapException == null) ? null : ErrorCreator.createError(ldapException);
+        BError cause = Objects.isNull(ldapException) ? null : ErrorCreator.createError(ldapException);
         BMap<BString, Object> errorDetails = getErrorDetails(Objects.requireNonNull(ldapException));
         return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, errorDetails);
     }
@@ -146,7 +146,7 @@ public final class Utils {
     }
 
     public static String[] convertToStringArray(Object[] objectArray) {
-        if (objectArray == null) {
+        if (Objects.isNull(objectArray)) {
             return new String[]{};
         }
         return Arrays.stream(objectArray)
@@ -198,7 +198,7 @@ public final class Utils {
     }
 
     public static String convertObjectGUIDToString(byte[] objectGUID) {
-        if (objectGUID == null || objectGUID.length != 16) {
+        if (Objects.isNull(objectGUID) || objectGUID.length != 16) {
             throw new IllegalArgumentException(OBJECT_GUID_LENGTH_ERROR);
         }
         return String.format("%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
