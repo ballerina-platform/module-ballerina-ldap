@@ -80,6 +80,7 @@ subprojects {
 task build {
     dependsOn(":ldap-native:build")
     dependsOn(":ldap-ballerina:build")
+    dependsOn(":ldap-examples:build")
 }
 
 def moduleVersion = project.version.replace("-SNAPSHOT", "")
