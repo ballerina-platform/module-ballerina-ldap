@@ -164,6 +164,8 @@ updateTomlFiles.dependsOn copyStdlibs
 build.dependsOn copyToLib
 
 test.dependsOn ":${packageName}-native:build"
+test.dependsOn startLdapServer
+test.finalizedBy stopLdapServer
 build.dependsOn "generatePomFileForMavenPublication"
 build.dependsOn ":${packageName}-native:build"
 build.dependsOn startLdapServer
