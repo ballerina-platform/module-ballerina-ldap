@@ -155,6 +155,17 @@ public final class Utils {
                 .toArray(String[]::new);
     }
 
+    public static BArray convertToBArray(Object[] objectArray) {
+        if (Objects.isNull(objectArray)) {
+            return ValueCreator.createArrayValue(new BString[]{});
+        }
+        BString[] array =  Arrays.stream(objectArray)
+                .filter(Objects::nonNull)
+                .map(object -> StringUtils.fromString(object.toString()))
+                .toArray(BString[]::new);
+        return ValueCreator.createArrayValue(array);
+    }
+
     public static SearchScope getSearchScope(BString scope) {
         return switch (scope.getValue()) {
             case "SUB" -> SearchScope.SUB;
