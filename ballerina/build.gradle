@@ -98,10 +98,10 @@ task startLdapServer() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             exec {
-                commandLine 'sh', '-c', "docker ps --filter name=openldap-server"
+                commandLine 'sh', '-c', "docker ps --filter name=my-openldap-container"
                 standardOutput = stdOut
             }
-            if (!stdOut.toString().contains("openldap-server")) {
+            if (!stdOut.toString().contains("my-openldap-container")) {
                 println "Starting LDAP server."
                 exec {
                     commandLine 'sh', '-c', "docker-compose -f $project.projectDir/tests/resources/openldap/docker-compose.yml up -d"
@@ -122,13 +122,13 @@ task stopLdapServer() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             exec {
-                commandLine 'sh', '-c', "docker ps --filter name=openldap-server"
+                commandLine 'sh', '-c', "docker ps --filter name=my-openldap-container"
                 standardOutput = stdOut
             }
-            if (stdOut.toString().contains("openldap-server")) {
+            if (stdOut.toString().contains("my-openldap-container")) {
                 println "Stopping LDAP server."
                 exec {
-                    commandLine 'sh', '-c', "docker stop openldap-server"
+                    commandLine 'sh', '-c', "docker stop my-openldap-container"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
