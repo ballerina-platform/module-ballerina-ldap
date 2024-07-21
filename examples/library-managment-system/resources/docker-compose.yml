@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  ldap_server:
+    image: osixia/openldap:latest
+    container_name: my-openldap-container
+    environment:
+      LDAP_ORGANISATION: "Library"
+      LDAP_DOMAIN: "library.org"
+      LDAP_ADMIN_PASSWORD: "adminpassword"
+    ports:
+      - "389:389"
+      - "636:636"
+    command: --copy-service
+    volumes:
+      - ./bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/50-bootstrap.ldif

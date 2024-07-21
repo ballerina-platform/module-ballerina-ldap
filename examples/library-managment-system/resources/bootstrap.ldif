@@ -1,0 +1,43 @@
+dn: ou=Users,dc=library,dc=org
+changetype: add
+objectClass: organizationalUnit
+ou: Users
+
+dn: ou=Groups,dc=library,dc=org
+changetype: add
+objectClass: organizationalUnit
+ou: Groups
+
+dn: ou=Books,dc=library,dc=org
+changetype: add
+objectClass: organizationalUnit
+ou: Books
+
+dn: uid=john,ou=Users,dc=library,dc=org
+changetype: add
+objectClass: inetOrgPerson
+cn: John
+givenName: John
+sn: John
+uid: john
+displayName: John Doe
+mail: johndoe@gmail.com
+userPassword: johndoe@123
+
+dn: cn=Users,ou=Groups,dc=library,dc=org
+changetype: add
+cn: Users
+objectClass: groupOfNames
+member: uid=john,ou=Users,dc=library,dc=org
+
+dn: cn=Books,ou=Groups,dc=library,dc=org
+changetype: add
+cn: Books
+objectClass: groupOfNames
+member: uid=john,ou=Users,dc=library,dc=org
+
+dn: cn=Dracula,ou=Books,dc=library,dc=org
+changetype: add
+objectClass: groupOfNames
+cn: Dracula
+member: uid=john,ou=Users,dc=library,dc=org
