@@ -23,6 +23,11 @@ configurable string domainName = ?;
 configurable string password = ?;
 configurable string userDN = ?;
 
+type Employee record {
+    string[] objectClass;
+    string sn;
+};
+
 public function main() returns error? {
     // Authenticate using the directory server credentials.
     ldap:Client ldapClient = check new ({
@@ -53,8 +58,3 @@ public function main() returns error? {
     ldap:LdapResponse response = check ldapClient->delete("CN=User,dc=mycompany,dc=com");
     io:println(response);
 }
-
-type Employee record {
-    string[] objectClass;
-    string sn;
-};
