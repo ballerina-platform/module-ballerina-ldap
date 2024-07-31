@@ -10,25 +10,20 @@ To use the LDAP connector in your Ballerina project, modify the `.bal` file as f
 
 ### Step 1: Import the module
 
-Import the `ballerinax/ldap` module into your Ballerina project.
+Import the `ballerina/ldap` module into your Ballerina project.
 
 ```ballerina
-import ballerinax/ldap;
+import ballerina/ldap;
 ```
 
 ### Step 2: Instantiate a new connector
 
 ```ballerina
-configurable string baseUrl = ?;
-configurable int identityMapCapacity = ?;
-configurable map<anydata> originals = ?;
-configurable map<string> headers = ?;
-
-cregistry:Client schemaRegistryClient = check new ({
-    baseUrl,
-    identityMapCapacity,
-    originals,
-    headers
+ldap:Client ldapClient = check new ({
+    hostName,
+    port,
+    domainName,
+    password
 });
 ```
 
@@ -37,15 +32,14 @@ cregistry:Client schemaRegistryClient = check new ({
 You can now utilize the operations available within the connector.
 
 ```ballerina
-public function main() returns error? {
-    string schema = string `
-        {
-            "type": "int",
-            "name" : "value", 
-            "namespace": "data"
-        }`;
 
-    int registerResult = check schemaRegistryClient.register("subject-name", schema);
+public function main() returns error? {
+    anydata user = {
+        "objectClass": "user",
+        "sn": "New User",
+        "cn": "New User"
+    };
+    ldap:LdapResponse result = check ldapClient->add(userDN, user);
 }
 ```
 
@@ -59,7 +53,7 @@ bal run
 
 ## Examples
 
-The DocuSign eSignature connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples).
+The Ballerina Ldap connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples).
 
 1. [Access directory server](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples/access-directory-server)
     This example shows how to integrate with a directory server to manage employees in a corporation.
