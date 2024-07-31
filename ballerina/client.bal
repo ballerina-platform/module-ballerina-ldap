@@ -97,7 +97,7 @@ public isolated client class Client {
     # Determines whether a given entry has a specified attribute value.
     # 
     # ```ballerina
-    # ldap:LdapResponse compare = check ldapClient->compare(userDN, "givenName", "New User");
+    # boolean compare = check ldapClient->compare(userDN, "givenName", "New User");
     # ```
     # 
     # + dN - The distinguished name of the entry
