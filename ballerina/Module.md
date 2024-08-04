@@ -4,56 +4,85 @@ LDAP (Lightweight Directory Access Protocol) is a vendor-neutral software protoc
 
 The Ballerina LDAP module provides the capability to efficiently connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing better support for directory-based operations.
 
-## Quickstart
+## Client
 
-To use the LDAP connector in your Ballerina project, modify the `.bal` file as follows.
+The `ldap:Client` connects to a directory server and performs various operations on directories. Currently, it supports the generic LDAP operations; `add`, `modify`, `modifyDN`, `compare`, `search`, `searchWithType`, `delete`, and `close`.
 
-### Step 1: Import the module
-
-Import the `ballerina/ldap` module into your Ballerina project.
+### Instantiate a new LDAP client
 
 ```ballerina
 import ballerina/ldap;
-```
-
-### Step 2: Instantiate a new connector
-
-```ballerina
-ldap:Client ldapClient = check new ({
-    hostName,
-    port,
-    domainName,
-    password
-});
-```
-
-### Step 3: Invoke the connector operation
-
-You can now utilize the operations available within the connector.
-
-```ballerina
 
 public function main() returns error? {
-    anydata user = {
-        "objectClass": "user",
-        "sn": "New User",
-        "cn": "New User"
-    };
-    ldap:LdapResponse result = check ldapClient->add(userDN, user);
+    ldap:Client ldapClient = check new ({
+        hostName,
+        port,
+        domainName,
+        password
+    });
 }
 ```
 
-### Step 4: Run the Ballerina application
+### Remote methods in `ldap:Client`
 
-Use the following command to compile and run the Ballerina program.
+- **add**: Creates an entry in a directory server.
+- **modify**: Updates information of an entry in a directory server.
+- **modifyDN**: Renames an entry in a directory server.
+- **compare**: Determines whether a given entry has a specified attribute value.
+- **search**: Returns a record containing search result entries and references that match the given search parameters.
+- **searchWithType**: Returns a list of entries that match the given search parameters.
+- **delete**: Removes an entry from a directory server.
+- **close**: Unbinds from the server and closes the LDAP connection.
 
-```bash
-bal run
+#### Add a new entry in the directory server
+
+Creates an entry in a directory server.
+
+```ballerina
+anydata user = {
+    "objectClass": "user",
+    "sn": "New User",
+    "cn": "New User",
+    "givenName": "New User",
+    "displayName": "New User",
+    "userPrincipalName": "newuser@ad.windows",
+    "userAccountControl": "544"
+};
+ldap:LdapResponse addResult = check ldapClient->add("DC=ldap,DC=com", user);
+```
+
+#### Search for an entry in the directory server
+
+Returns a record containing search result entries and references that match the given search parameters.
+
+```ballerina
+ldap:SearchResult searchResult = check ldapClient->search("DC=ldap,DC=com", "(givenName=Test User1)", ldap:SUB);
+```
+
+#### Modify a new entry in the directory server
+
+Updates information of an entry.
+
+```ballerina
+anydata user = {
+    "sn": "User",
+    "givenName": "Updated User",
+    "displayName": "Updated User"
+};
+ldap:LdapResponse modifyResult = check ldapClient->modify("DC=ldap,DC=com", user);
+```
+
+#### Delete an entry in the directory server
+
+Removes an entry from a directory server.
+
+```ballerina
+ldap:LdapResponse deleteResult = check ldapClient->delete("DC=ldap,DC=com");
 ```
 
 ## Examples
 
-The Ballerina Ldap connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples).
+The Ballerina Ldap library provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples).
 
 1. [Access directory server](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples/access-directory-server)
     This example shows how to integrate with a directory server to manage employees in a corporation.
