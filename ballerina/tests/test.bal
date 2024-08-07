@@ -146,7 +146,6 @@ public function testAddUserWithNullValues() returns error? {
    LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
    test:assertEquals(response.resultCode, SUCCESS);
 
-
    LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
 }
@@ -156,14 +155,11 @@ public function testCompareAttributeValues() returns error? {
    LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
    test:assertEquals(response.resultCode, SUCCESS);
 
-
    boolean compare = check ldapClient->compare("CN=Test User1,dc=mycompany,dc=com", "sn", "Timothy");
    test:assertEquals(compare, true);
 
-
    LdapResponse modifyDN = check ldapClient->modifyDn("CN=Test User1,dc=mycompany,dc=com", "CN=Test User2", true);
    test:assertEquals(modifyDN.resultCode, SUCCESS);
-
 
    LdapResponse delete = check ldapClient->delete("CN=Test User2,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
@@ -174,11 +170,9 @@ public function testSearchWithType() returns error? {
    LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
    test:assertEquals(response.resultCode, SUCCESS);
 
-
    UserConfig[] value = check ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
    test:assertEquals(value.length(), 1);
    test:assertEquals(value[0].objectClass, ["person", "top"]);
-
 
    LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
@@ -189,13 +183,11 @@ public function testSearchUser() returns error? {
    LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
    test:assertEquals(response.resultCode, SUCCESS);
 
-
    SearchResult value = check ldapClient->search("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
    test:assertEquals(value.resultCode, SUCCESS);
    test:assertEquals((<Entry[]>value.entries).length(), 1);
    test:assertEquals((<Entry[]>value.entries)[0]["objectClass"], ["person", "top"]);
    test:assertTrue(value?.searchReferences is ());
-
 
    LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
@@ -206,14 +198,12 @@ public function testSearchNonExistingUsers() returns error? {
    LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
    test:assertEquals(response.resultCode, SUCCESS);
 
-
    SearchResult|Error value = ldapClient->search("dc=mycompany,dc=com", "(givenName=Non existent)", SUB);
    test:assertTrue(value is Error);
    if value is Error {
        ErrorDetails errorDetails = value.detail();
        test:assertEquals(errorDetails.resultCode, OTHER);
    }
-
 
    LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
@@ -262,10 +252,8 @@ public function testModifyDN() returns error? {
    LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
    test:assertEquals(response.resultCode, SUCCESS);
 
-
    LdapResponse modifyDN = check ldapClient->modifyDn("CN=Test User1,dc=mycompany,dc=com", "CN=Test User2", true);
    test:assertEquals(modifyDN.resultCode, SUCCESS);
-
 
    LdapResponse delete = check ldapClient->delete("CN=Test User2,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
@@ -285,7 +273,6 @@ public function testModifyDnInNonExistingUser() {
 public function testSearchWithInvalidType() returns error? {
    LdapResponse response = check ldapClient->add("CN=Test User1,dc=mycompany,dc=com", user);
    test:assertEquals(response.resultCode, SUCCESS);
-
 
    record {|string id;|}[]|Error value = ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
    test:assertTrue(value is Error);

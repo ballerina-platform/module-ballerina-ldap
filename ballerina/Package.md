@@ -4,7 +4,26 @@ LDAP (Lightweight Directory Access Protocol) is a vendor-neutral software protoc
 
 The Ballerina LDAP module provides the capability to efficiently connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing better support for directory-based operations.
 
-### APIs associated with LDAP
+## Client
+
+The `ldap:Client` connects to a directory server and performs various operations on directories. Currently, it supports the generic LDAP operations; `add`, `modify`, `modifyDN`, `compare`, `search`, `searchWithType`, `delete`, and `close`.
+
+### Instantiate a new LDAP client
+
+```ballerina
+import ballerina/ldap;
+
+public function main() returns error? {
+    ldap:Client ldapClient = check new ({
+        hostName,
+        port,
+        domainName,
+        password
+    });
+}
+```
+
+### Remote methods in `ldap:Client`
 
 - **add**: Creates an entry in a directory server.
 - **modify**: Updates information of an entry in a directory server.
@@ -15,124 +34,58 @@ The Ballerina LDAP module provides the capability to efficiently connect, authen
 - **delete**: Removes an entry from a directory server.
 - **close**: Unbinds from the server and closes the LDAP connection.
 
-#### `add` API
+#### Add a new entry in the directory server
 
 Creates an entry in a directory server.
 
 ```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    anydata user = {
-        "objectClass": "user",
-        "sn": "New User",
-        "cn": "New User",
-        "givenName": "New User",
-        "displayName": "New User",
-        "userPrincipalName": "newuser@ad.windows",
-        "userAccountControl": "544"
-    };
-    ldap:LdapResponse val = check ldapClient->add(userDN, user);
-}
+anydata user = {
+    "objectClass": "user",
+    "sn": "New User",
+    "cn": "New User",
+    "givenName": "New User",
+    "displayName": "New User",
+    "userPrincipalName": "newuser@ad.windows",
+    "userAccountControl": "544"
+};
+ldap:LdapResponse addResult = check ldapClient->add("DC=ldap,DC=com", user);
 ```
 
-#### `modify` API
-
-Updates information of an entry.
-
-```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    anydata user = {
-        "sn": "User",
-        "givenName": "Updated User",
-        "displayName": "Updated User"
-    };
-    _ = check ldapClient->modify(userDN, user);
-}
-```
-
-#### `modifyDN` API
-
-Renames an entry in a directory server.
-
-```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    ldap:LdapResponse modifyDN = check ldapClient->modifyDN(userDN, "CN=Test User2", true);
-}
-```
-
-#### `compare` API
-
-Determines whether a given entry has a specified attribute value.
-
-```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    ldap:LdapResponse compare = check ldapClient->compare(userDN, "givenName", "Test User1");
-}
-```
-
-#### `search` API
+#### Search for an entry in the directory server
 
 Returns a record containing search result entries and references that match the given search parameters.
 
 ```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    ldap:SearchResult value = check ldapClient->search("DC=ad,DC=windows", "(givenName=Test User1)", SUB);
-}
+ldap:SearchResult searchResult = check ldapClient->search("DC=ldap,DC=com", "(givenName=Test User1)", ldap:SUB);
 ```
 
-#### `searchWithType` API
+#### Modify a new entry in the directory server
 
-Returns a list of entries that match the given search parameters.
+Updates information of an entry.
 
 ```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    anydata[] value = check ldapClient->searchWithType("DC=ad,DC=com", "(givenName=Test User1)", ldap:SUB);
-}
+anydata user = {
+    "sn": "User",
+    "givenName": "Updated User",
+    "displayName": "Updated User"
+};
+ldap:LdapResponse modifyResult = check ldapClient->modify("DC=ldap,DC=com", user);
 ```
 
-#### `getEntry` API
-
-Gets information about an entry in a directory server.
-
-```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    anydata value = check ldapClient->getEntry(userDN);
-}
-```
-
-#### `delete` API
+#### Delete an entry in the directory server
 
 Removes an entry from a directory server.
 
 ```ballerina
-import ballerina/ldap;
-
-public function main() returns error? {
-    ldap:LdapResponse val = check ldapClient->delete(userDN);
-}
+ldap:LdapResponse deleteResult = check ldapClient->delete("DC=ldap,DC=com");
 ```
 
-#### `close` API
+## Examples
 
-Unbinds from the server and closes the LDAP connection.
+The Ballerina Ldap library provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples).
 
-```ballerina
-import ballerina/ldap;
+1. [Access directory server](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples/access-directory-server)
+    This example shows how to integrate with a directory server to manage employees in a corporation.
 
-public function main() {
-    ldapClient->close();
-}
-```
+2. [Manage entries in a library](https://github.com/ballerina-platform/module-ballerina-ldap/tree/master/examples/library-managment-system)
+    This example demonstrates how to integrate with a directory server for managing users and books in a library.

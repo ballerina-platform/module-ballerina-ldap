@@ -32,7 +32,16 @@ public isolated client class Client {
     } external;
 
     # Creates an entry in a directory server.
-    #
+    # 
+    # ```ballerina
+    # anydata user = {
+    #   "objectClass": "user",
+    #   "sn": "New User",
+    #   "cn": "New User"
+    # };
+    # ldap:LdapResponse result = check ldapClient->add(userDN, user);
+    # ```
+    # 
     # + dN - The distinguished name of the entry
     # + entry - The information to add
     # + return - A `ldap:Error` if the operation fails or `ldap:LdapResponse` if successfully created
@@ -41,7 +50,11 @@ public isolated client class Client {
     } external;
 
     # Removes an entry in a directory server.
-    #
+    # 
+    # ```ballerina
+    # ldap:LdapResponse result = check ldapClient->delete(userDN);
+    # ```
+    # 
     # + dN - The distinguished name of the entry to remove
     # + return - A `ldap:Error` if the operation fails or `ldap:LdapResponse` if successfully removed
     remote isolated function delete(string dN) returns LdapResponse|Error = @java:Method {
@@ -49,6 +62,15 @@ public isolated client class Client {
     } external;
 
     # Updates information of an entry.
+    # 
+    # ```ballerina
+    # anydata user = {
+    #   "sn": "User",
+    #   "givenName": "Updated User",
+    #   "displayName": "Updated User"
+    # };
+    # ldap:LdapResponse result = check ldapClient->modify(userDN, user);
+    # ```
     # 
     # + dN - The distinguished name of the entry
     # + entry - The information to update
@@ -58,7 +80,11 @@ public isolated client class Client {
     } external;
 
     # Renames an entry in a directory server.
-    #
+    # 
+    # ```ballerina
+    # ldap:LdapResponse modifyDN = check ldapClient->modifyDn(userDN, "CN=Test User2", true);
+    # ```
+    # 
     # + currentDn - The current distinguished name of the entry
     # + newRdn - The new relative distinguished name
     # + deleteOldRdn - A boolean value to determine whether to delete the old RDN
@@ -69,6 +95,10 @@ public isolated client class Client {
     } external;
 
     # Determines whether a given entry has a specified attribute value.
+    # 
+    # ```ballerina
+    # boolean compare = check ldapClient->compare(userDN, "givenName", "New User");
+    # ```
     # 
     # + dN - The distinguished name of the entry
     # + attributeName - The name of the target attribute for which the comparison is to be performed
@@ -81,6 +111,10 @@ public isolated client class Client {
 
     # Gets information of an entry.
     # 
+    # ```ballerina
+    # anydata value = check ldapClient->getEntry(userDN);
+    # ```
+    # 
     # + dN - The distinguished name of the entry
     # + targetType - Default parameter use to infer the user specified type
     # + return - An entry result with the given type or else `ldap:Error`
@@ -90,7 +124,11 @@ public isolated client class Client {
     } external;
 
     # Returns a list of entries that match the given search parameters.
-    #
+    # 
+    # ```ballerina
+    # anydata[] value = check ldapClient->searchWithType("DC=ldap,DC=com", "(givenName=New User)", ldap:SUB);
+    # ```
+    # 
     # + baseDn - The base distinguished name of the entry
     # + filter - The filter to be used in the search
     # + scope - The scope of the search
@@ -104,6 +142,10 @@ public isolated client class Client {
 
     # Returns a record containing search result entries and references that match the given search parameters.
     # 
+    # ```ballerina
+    # ldap:SearchResult value = check ldapClient->search("DC=ldap,DC=windows", "(givenName=New User)", ldap:SUB);
+    # ```
+    # 
     # + baseDn - The base distinguished name of the entry
     # + filter - The filter to be used in the search
     # + scope - The scope of the search
@@ -115,11 +157,19 @@ public isolated client class Client {
 
     # Unbinds from the server and closes the LDAP connection. 
     # 
+    # ```ballerina
+    # ldapClient->close();
+    # ```
+    # 
     remote isolated function close() = @java:Method {
         'class: "io.ballerina.lib.ldap.Client"
     } external;
 
     # Determines whether the client is connected to the server.
+    # 
+    # ```ballerina
+    # boolean isConnected = ldapClient->isConnected();
+    # ```
     # 
     # + return - A boolean value indicating the connection status
     remote isolated function isConnected() returns boolean = @java:Method {
