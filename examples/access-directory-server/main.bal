@@ -29,7 +29,6 @@ type Employee record {
 };
 
 public function main() returns error? {
-    // Authenticate using the directory server credentials.
     ldap:Client ldapClient = check new ({
         hostName,
         port,

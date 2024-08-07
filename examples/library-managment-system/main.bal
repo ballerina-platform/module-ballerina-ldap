@@ -23,7 +23,6 @@ configurable string domainName = ?;
 configurable string password = ?;
 
 public function main() returns error? {
-    // Authenticate using the directory server credentials.
     ldap:Client ldapClient = check new ({
         hostName,
         port,
