@@ -33,13 +33,13 @@ public type ConnectionConfig record {|
 # + resultCode - The operation status of the response
 # + diagnosticMessage - The diagnostic message from the response
 # + operationType - The protocol operation type
-# + refferal - The referral URIs
+# + referral - The referral URIs
 public type LdapResponse record {|
-    string matchedDN;
+    string? matchedDN;
     Status resultCode;
-    string diagnosticMessage;
-    string operationType;
-    string[] refferal;
+    string? diagnosticMessage;
+    string? operationType;
+    string[]? referral;
 |};
 
 # LDAP search result type.

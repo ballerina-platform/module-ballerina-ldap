@@ -62,6 +62,7 @@ import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
 import static io.ballerina.lib.ldap.Utils.LDAP_CONNECTION_CLOSED_ERROR;
 import static io.ballerina.lib.ldap.Utils.convertObjectGUIDToString;
 import static io.ballerina.lib.ldap.Utils.convertObjectSidToString;
+import static io.ballerina.lib.ldap.Utils.convertToBArray;
 import static io.ballerina.lib.ldap.Utils.convertToStringArray;
 import static io.ballerina.lib.ldap.Utils.getSearchScope;
 
@@ -312,7 +313,7 @@ public final class Client {
         response.put(RESULT_STATUS,
                      StringUtils.fromString(ldapResult.getResultCode().getName().toUpperCase(Locale.ROOT)));
         response.put(DIAGNOSTIC_MESSAGE, StringUtils.fromString(ldapResult.getDiagnosticMessage()));
-        response.put(REFERRAL, convertToStringArray(ldapResult.getReferralURLs()));
+        response.put(REFERRAL, convertToBArray(ldapResult.getReferralURLs()));
         response.put(OPERATION_TYPE, StringUtils.fromString(ldapResult.getOperationType().name()));
         return response;
     }
