@@ -46,7 +46,7 @@ The `ldap:Client` instance needs to be initialized before performing the functio
 The `init` method initializes the `ldap:Client` instance using the parameters `hostName`, `port`, `domainName`, and `password`. The `hostName` and `port` parameters are used to bind the request and authenticate clients with the directory server, while the `domainName` and `password` parameters establish the connection to the server for performing LDAP operations. In case of failure, the method returns an `avro:Error`."
 
 ```ballerina
-ldap:Client ldap = check new ({
+ldap:Client ldapClient = check new ({
    hostName,
    port,
    domainName,
