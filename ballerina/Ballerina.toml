@@ -1,7 +1,7 @@
 [package]
 org = "ballerina"
 name = "ldap"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Ballerina"]
 export=["ldap"]
 keywords = ["ldap"]
@@ -15,8 +15,8 @@ graalvmCompatible = true
 [[platform.java17.dependency]]
 groupId = "io.ballerina.lib"
 artifactId = "ldap-native"
-version = "1.0.0"
-path = "../native/build/libs/ldap-native-1.0.0.jar"
+version = "1.0.1"
+path = "../native/build/libs/ldap-native-1.0.1.jar"
 
 [[platform.java17.dependency]]
 groupId = "com.unboundid"
