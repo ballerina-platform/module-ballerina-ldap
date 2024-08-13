@@ -84,7 +84,7 @@ public enum SearchScope {
     ONE,
     # Indicates that the base entry itself and any subordinate entries (to any depth) should be considered
     SUB,
-    # Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in draft-sermersheim-ldap-subordinate-scope
+    # Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in [draft-sermersheim-ldap-subordinate-scope](https://docs.ldap.com/specs/draft-sermersheim-ldap-subordinate-scope-02.txt)
     SUBORDINATE_SUBTREE
 };
 
