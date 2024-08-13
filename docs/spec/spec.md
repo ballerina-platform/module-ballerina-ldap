@@ -19,9 +19,9 @@ The conforming implementation of the specification is released and included in t
 ## Contents
 
 1. [Overview](#1-overview)
-2. [LDAP Client](#2-ldap-client)
+2. [LDAP client](#2-ldap-client)
     * 2.1 [The `init` method](#21-the-init-method)
-3. [Operation Types](#3-operation-types)
+3. [Operation types](#3-operation-types)
     * 3.1 [Add operation](#31-add-operation)
     * 3.2 [Modify operation](#32-modify-operation)
     * 3.3 [ModifyDN operation](#33-modifydn-operation)
@@ -39,11 +39,11 @@ The Ballerina LDAP module provides support for interacting with directory server
 
 ## 2. LDAP client
 
-The `ldap:Client` instance needs to be initialized before performing the functionalities. When initializing it connects to a directory server and performs various operations on directories. Currently, it supports the generic LDAP operations; `add`, `modify`, `modifyDN`, `compare`, `search`, `searchWithType`, `delete`, and `close`.
+The `ldap:Client` instance needs to be initialized before performing the functionalities. Once initialized, it can perform various operations on directories. Currently, it supports the generic LDAP operations; `add`, `modify`, `modifyDN`, `compare`, `search`, `searchWithType`, `delete`, and `close`.
 
 ### 2.1 The `init` method
 
-The `init` method initializes the `ldap:Client` instance using the parameters `hostName`, `port`, `domainName`, and `password`. The `hostName` and `port` parameters are used to bind the request and authenticate clients with the directory server, while the `domainName` and `password` parameters establish the connection to the server for performing LDAP operations. In case of failure, the method returns an `avro:Error`."
+The `init` method initializes the `ldap:Client` instance using the parameters `hostName`, `port`, `domainName`, and `password`. The `hostName` and `port` parameters are used to bind the request and authenticate clients with the directory server, while the `domainName` and `password` parameters establish the connection to the server for performing LDAP operations. In case of failure, the method returns an `ldap:Error`."
 
 ```ballerina
 ldap:Client ldapClient = check new ({
@@ -56,7 +56,7 @@ ldap:Client ldapClient = check new ({
 
 ## 3. Operation types
 
-The main operation types in LDAP are listed here.
+The currently supported operation types in LDAP are listed here.
 
 ### 3.1 Add operation
 
@@ -122,7 +122,7 @@ Returns a list of entries that match the given search parameters.
 anydata[] searchResult = check ldap->searchWithType("dc=example,dc=com", "(givenName=user1)", ldap:SUB);
 ```
 
-### 3.6.1 Search Scope
+### 3.6.1 Search scope
 
 The search scope defines the part of the target subtree that should be included in the search.
 
@@ -132,9 +132,9 @@ The search scope defines the part of the target subtree that should be included 
 
 **SUB** : Indicates that the base entry itself and any subordinate entries (to any depth) should be considered
 
-**SUBORDINATE_SUBTREE** : Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in draft-sermersheim-ldap-subordinate-scope.
+**SUBORDINATE_SUBTREE** : Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in [draft-sermersheim-ldap-subordinate-scope](https://docs.ldap.com/specs/draft-sermersheim-ldap-subordinate-scope-02.txt).
 
-### 3.6.2 Search Filter
+### 3.6.2 Search filter
 
 Filters are essential for specifying the criteria used to locate entries in search requests. [Learn more](https://ldap.com/ldap-filters/).
 
