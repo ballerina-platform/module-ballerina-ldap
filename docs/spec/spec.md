@@ -63,7 +63,7 @@ The main operation types in LDAP are listed here.
 Creates an entry in a directory server.
 
 ```ballerina
-anydata user = {
+ldap:Entry user = {
     "objectClass": "user",
     "sn": "New User",
     "cn": "New User"
@@ -82,7 +82,7 @@ A `DN` consists of one or more comma-separated components known as relative dist
 Updates information of an entry in a directory server.
 
 ```ballerina
-anydata user = {
+ldap:Entry user = {
     "sn": "user",
     "givenName": "updated user",
     "displayName": "updated user"
