@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Provides a set of configurations to control the behaviours when communicating with a directory server.
+# Provides a set of configurations to connect with a directory server.
 #
 # + hostName - The host name of the Active Directory server
 # + port -  The port of the Active Directory server
