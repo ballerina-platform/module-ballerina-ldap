@@ -1,16 +1,16 @@
 # Specification: Ballerina LDAP Library
 
 _Authors_: @Nuvindu \
-_Reviewers_:  \
+_Reviewers_: @NipunaRanasinghe @ayeshLK @DimuthuMadushan \
 _Created_: 2024/08/11 \
 _Updated_: 2024/08/11 \
 _Edition_: Swan Lake
 
 ## Introduction
 
-LDAP (Lightweight Directory Access Protocol) is a vendor-neutral software protocol for accessing and maintaining distributed directory information services. It allows users to locate organizations, individuals, and other resources such as files and devices in a network. LDAP is used in various applications for directory-based authentication and authorization.
+This is the specification for the LDAP library of Ballerina language, which provides the capability to efficiently connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing better support for directory-based operations.
 
-The Ballerina LDAP module provides the capability to efficiently connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing better support for directory-based operations.
+The LDAP library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant Github tag.
 
 If you have any feedback or suggestions about the library, start a discussion via a [GitHub issue](https://github.com/ballerina-platform/ballerina-library/issues) or in the [Discord server](https://discord.gg/ballerinalang). Based on the outcome of the discussion, the specification and implementation can be updated. Community feedback is always welcome. Any accepted proposal, which affects the specification is stored under `/docs/proposals`. Proposals under discussion can be found with the label `type/proposal` in GitHub.
 
@@ -20,7 +20,8 @@ The conforming implementation of the specification is released and included in t
 
 1. [Overview](#1-overview)
 2. [LDAP client](#2-ldap-client)
-    * 2.1 [The `init` method](#21-the-init-method)
+    * 2.1 [Configurations](#21-configurations)
+    * 2.2 [Initialization](#22-initialization)
 3. [Operation types](#3-operation-types)
     * 3.1 [Add operation](#31-add-operation)
     * 3.2 [Modify operation](#32-modify-operation)
@@ -41,17 +42,35 @@ The Ballerina LDAP module provides support for interacting with directory server
 
 The `ldap:Client` instance needs to be initialized before performing the functionalities. Once initialized, it can perform various operations on directories. Currently, it supports the generic LDAP operations; `add`, `modify`, `modifyDN`, `compare`, `search`, `searchWithType`, `delete`, and `close`.
 
-### 2.1 The `init` method
+### 2.1 Configurations
+
+When initializing the `ldap:Client`, `ldap:ConnectionConfig` configuration can be provided.
+
+```ballerina
+# Provides a set of configurations to connect with a directory server.
+#
+# + hostName - The host name of the active directory server
+# + port -  The port of the active directory server
+# + domainName -  The domain name of the active directory
+# + password - The password of the active directory
+public type ConnectionConfig record {|
+    string hostName;
+    int port;
+    string domainName;
+    string password;
+|};
+```
+
+### 2.2 Initialization
 
 The `init` method initializes the `ldap:Client` instance using the parameters `hostName`, `port`, `domainName`, and `password`. The `hostName` and `port` parameters are used to bind the request and authenticate clients with the directory server, while the `domainName` and `password` parameters establish the connection to the server for performing LDAP operations. In case of failure, the method returns an `ldap:Error`."
 
 ```ballerina
-ldap:Client ldapClient = check new ({
-   hostName,
-   port,
-   domainName,
-   password
-});
+# Gets invoked to initialize the LDAP client.
+#
+# + config - The configurations to be used when initializing the client
+# + return - A `ldap:Error` if client initialization failed
+public isolated function init(*ConnectionConfig config) returns Error?;
 ```
 
 ## 3. Operation types
@@ -63,12 +82,12 @@ The currently supported operation types in LDAP are listed here.
 Creates an entry in a directory server.
 
 ```ballerina
-ldap:Entry user = {
-    "objectClass": "user",
-    "sn": "New User",
-    "cn": "New User"
-};
-ldap:LdapResponse addResult = check ldap->add(userDn, user);
+# Creates an entry in a directory server.
+# 
+# + dN - The distinguished name of the entry
+# + entry - The information to add
+# + return - A `ldap:Error` if the operation fails or `ldap:LdapResponse` if successfully created
+remote isolated function add(string dN, Entry entry) returns LdapResponse|Error;
 ```
 
 #### 3.1.1 DNs and RDNs
@@ -82,12 +101,12 @@ A `DN` consists of one or more comma-separated components known as relative dist
 Updates information of an entry in a directory server.
 
 ```ballerina
-ldap:Entry user = {
-    "sn": "user",
-    "givenName": "updated user",
-    "displayName": "updated user"
-};
-ldap:LdapResponse modifyResult = check ldap->modify(dN, user);
+# Updates information of an entry.
+#
+# + dN - The distinguished name of the entry
+# + entry - The information to update
+# + return - A `ldap:Error` if the operation fails or `LdapResponse` if successfully updated
+remote isolated function modify(string dN, Entry entry) returns LdapResponse|Error;
 ```
 
 ### 3.3 ModifyDn operation
@@ -95,7 +114,13 @@ ldap:LdapResponse modifyResult = check ldap->modify(dN, user);
 Renames an entry in a directory server.
 
 ```ballerina
-ldap:LdapResponse modifyResult = check ldap->modifyDn(dN, "CN=user1", true);
+# Renames an entry in a directory server.
+#
+# + currentDn - The current distinguished name of the entry
+# + newRdn - The new relative distinguished name
+# + deleteOldRdn - A boolean value to determine whether to delete the old RDN
+# + return - A `ldap:Error` if the operation fails or `ldap:LdapResponse` if successfully renamed
+remote isolated function modifyDn(string currentDn, string newRdn, boolean deleteOldRdn = false) returns LdapResponse|Error;
 ```
 
 ### 3.4 Compare operation
@@ -103,7 +128,13 @@ ldap:LdapResponse modifyResult = check ldap->modifyDn(dN, "CN=user1", true);
 Determines whether a given entry has a specified attribute value.
 
 ```ballerina
-ldap:LdapResponse compareResult = check ldap->compare(dN, "givenName", "user1");
+# Determines whether a given entry has a specified attribute value.
+# 
+# + dN - The distinguished name of the entry
+# + attributeName - The name of the target attribute for which the comparison is to be performed
+# + assertionValue - The assertion value to verify within the entry
+# + return - A `boolean` value indicating whether the values match, or an `ldap:Error` if the operation fails
+remote isolated function compare(string dN, string attributeName, string assertionValue) returns boolean|Error;
 ```
 
 ### 3.5 Search operation
@@ -111,7 +142,13 @@ ldap:LdapResponse compareResult = check ldap->compare(dN, "givenName", "user1");
 Returns a record containing search result entries and references that match the given search parameters.
 
 ```ballerina
-ldap:SearchResult searchResult = check ldap->search("dc=example,dc=com", "(givenName=user1)", ldap:SUB);
+# Returns a record containing search result entries and references that match the given search parameters.
+#
+# + baseDn - The base distinguished name of the entry
+# + filter - The filter to be used in the search
+# + scope - The scope of the search
+# + return - An `ldap:SearchResult` if successful, or else `ldap:Error`
+remote isolated function search(string baseDn, string filter, SearchScope scope) returns SearchResult|Error;
 ```
 
 ### 3.6 Search with type operation
@@ -119,7 +156,14 @@ ldap:SearchResult searchResult = check ldap->search("dc=example,dc=com", "(given
 Returns a list of entries that match the given search parameters.
 
 ```ballerina
-anydata[] searchResult = check ldap->searchWithType("dc=example,dc=com", "(givenName=user1)", ldap:SUB);
+# Returns a list of entries that match the given search parameters.
+#
+# + baseDn - The base distinguished name of the entry
+# + filter - The filter to be used in the search
+# + scope - The scope of the search
+# + targetType - Default parameter use to infer the user specified type
+# + return - An array of entries with the given type or else `ldap:Error`
+remote isolated function searchWithType(string baseDn, string filter, SearchScope scope, typedesc<record{}[]> targetType = <>) returns targetType|Error;
 ```
 
 ### 3.6.1 Search scope
@@ -143,7 +187,11 @@ Filters are essential for specifying the criteria used to locate entries in sear
 Removes an entry from a directory server.
 
 ```ballerina
-ldap:LdapResponse deleteResult = check ldap->delete(userDN);
+# Removes an entry in a directory server.
+#
+# + dN - The distinguished name of the entry to remove
+# + return - A `ldap:Error` if the operation fails or `ldap:LdapResponse` if successfully removed
+remote isolated function delete(string dN) returns LdapResponse|Error;
 ```
 
 ### 3.8 Close operation
@@ -151,7 +199,20 @@ ldap:LdapResponse deleteResult = check ldap->delete(userDN);
 Unbinds from the server and closes the LDAP connection.
 
 ```ballerina
-ldapClient->close();
+# Unbinds from the server and closes the LDAP connection.
+# 
+remote isolated function close();
+```
+
+### 3.8 Connection availability operation
+
+Determines whether the client is connected to the server.
+
+```ballerina
+# Determines whether the client is connected to the server.
+#
+# + return - A boolean value indicating the connection status
+remote isolated function isConnected() returns boolean;
 ```
 
 ## 4. The `ldap:LdapResponse` type
