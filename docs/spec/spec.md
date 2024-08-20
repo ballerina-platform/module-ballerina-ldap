@@ -96,6 +96,18 @@ The distinguished name (`DN`) of an entry is used to uniquely identify the entry
 
 A `DN` consists of one or more comma-separated components known as relative distinguished names (`RDN`s). Typically, the leftmost component in the `DN` is considered the `RDN` for that entry. [Learn more](https://ldap.com/ldap-dns-and-rdns/)
 
+#### 3.1.2 LDAP Entry
+
+An `ldap:Entry` is a record that holds information about an object or entity within the DIT. It includes a distinguished name, a set of object classes, and a set of attributes.
+
+```ballerina
+# LDAP entry type.
+public type Entry record{|AttributeType...;|};
+
+# Attribute type of an LDAP entry.
+public type AttributeType boolean|int|float|decimal|string|string[];
+```
+
 ### 3.2 Modify operation
 
 Updates information of an entry in a directory server.
@@ -168,7 +180,7 @@ remote isolated function searchWithType(string baseDn, string filter, SearchScop
 
 ### 3.6.1 Search scope
 
-The search scope defines the part of the target subtree that should be included in the search.
+The `ldap:SearchScope` defines the part of the target subtree that should be included in the search.
 
 **BASE** : Indicates that only the entry specified by the base DN should be considered
 
@@ -177,6 +189,17 @@ The search scope defines the part of the target subtree that should be included 
 **SUB** : Indicates that the base entry itself and any subordinate entries (to any depth) should be considered
 
 **SUBORDINATE_SUBTREE** : Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in [draft-sermersheim-ldap-subordinate-scope](https://docs.ldap.com/specs/draft-sermersheim-ldap-subordinate-scope-02.txt).
+
+```ballerina
+# Scope of the search operation.
+#
+public enum SearchScope {
+    BASE,
+    ONE,
+    SUB,
+    SUBORDINATE_SUBTREE
+};
+```
 
 ### 3.6.2 Search filter
 
