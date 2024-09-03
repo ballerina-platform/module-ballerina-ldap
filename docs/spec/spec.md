@@ -23,6 +23,9 @@ The conforming implementation of the specification is released and included in t
     * 2.1 [Configurations](#21-configurations)
     * 2.2 [Initialization](#22-initialization)
     * 2.3 [DNs and RDNs](#23-dns-and-rdns)
+    * 2.4 [The `ldap:Entry` type](#24-the-ldapentry-type)
+    * 2.5 [The `ldap:LdapResponse` type](#25-the-ldapldapresponse-type)
+    * 2.6 [The `ldap:Error` type](#26-the-ldaperror-type)
 3. [Operation types](#3-operation-types)
     * 3.1 [Add operation](#31-add-operation)
     * 3.2 [Modify operation](#32-modify-operation)
@@ -32,9 +35,7 @@ The conforming implementation of the specification is released and included in t
     * 3.6 [Search with type operation](#36-search-with-type-operation)
     * 3.7 [Delete operation](#37-delete-operation)
     * 3.8 [Close operation](#38-close-operation)
-4. [The `ldap:Entry` type](#4-the-ldapentry-type)
-5. [The `ldap:LdapResponse` type](#5-the-ldapldapresponse-type)
-6. [The `ldap:Error` type](#6-the-ldaperror-type)
+    * 3.9 [Connection availability operation](#39-connection-availability-operation)
 
 ## 1. Overview
 
@@ -80,6 +81,36 @@ public isolated function init(*ConnectionConfig config) returns Error?;
 The distinguished name (`DN`) of an entry is used to uniquely identify the entry and its location within the directory information tree (`DIT`) hierarchy. It's similar to how a file path specifies the location of a file in a filesystem.
 
 A `DN` consists of one or more comma-separated components known as relative distinguished names (`RDN`s). Typically, the leftmost component in the `DN` is considered the `RDN` for that entry. [Learn more](https://ldap.com/ldap-dns-and-rdns/)
+
+## 2.4 The `ldap:Entry` type
+
+An `ldap:Entry` is a record that holds information about an object or entity within the DIT. It includes a distinguished name, a set of object classes, and a set of attributes.
+
+```ballerina
+# LDAP entry type.
+public type Entry record{|AttributeType...;|};
+
+# Attribute type of an LDAP entry.
+public type AttributeType boolean|int|float|decimal|string|string[];
+```
+
+## 2.5 The `ldap:LdapResponse` type
+
+The `ldap:LdapResponse` type defines a data structure used to encapsulate common elements found in most LDAP responses.
+
+**Result Code**: An integer indicating the status of the operation.
+
+**Diagnostic Message**: This can provide extra details about the operation, such as reasons for any failure. This field is often missing in successful operations and may or may not be present in failed ones.
+
+**Matched DN**: An optional DN that denotes the entry most closely matching the DN of a non-existent entry. For example, if an operation fails due to a missing entry, this field may specify the DN of the closest existing ancestor.
+
+**Operation Type**: Indicates the type of the LDAP operation
+
+**Referral URLs**: An optional collection of LDAP URLs that direct to other directories or locations within the DIT where the operation might be carried out. All provided URLs should be treated as equally valid for performing the operation.
+
+## 2.6 The `ldap:Error` type
+
+The `ldap:Error` type represents all the errors related to the LDAP module. This is a subtype of the Ballerina `error` type.
 
 ## 3. Operation types
 
@@ -217,7 +248,7 @@ Unbinds from the server and closes the LDAP connection.
 remote isolated function close();
 ```
 
-### 3.8 Connection availability operation
+### 3.9 Connection availability operation
 
 Determines whether the client is connected to the server.
 
@@ -227,33 +258,3 @@ Determines whether the client is connected to the server.
 # + return - A boolean value indicating the connection status
 remote isolated function isConnected() returns boolean;
 ```
-
-## 4. The `ldap:Entry` type
-
-An `ldap:Entry` is a record that holds information about an object or entity within the DIT. It includes a distinguished name, a set of object classes, and a set of attributes.
-
-```ballerina
-# LDAP entry type.
-public type Entry record{|AttributeType...;|};
-
-# Attribute type of an LDAP entry.
-public type AttributeType boolean|int|float|decimal|string|string[];
-```
-
-## 5. The `ldap:LdapResponse` type
-
-The `ldap:LdapResponse` type defines a data structure used to encapsulate common elements found in most LDAP responses.
-
-**Result Code**: An integer indicating the status of the operation.
-
-**Diagnostic Message**: This can provide extra details about the operation, such as reasons for any failure. This field is often missing in successful operations and may or may not be present in failed ones.
-
-**Matched DN**: An optional DN that denotes the entry most closely matching the DN of a non-existent entry. For example, if an operation fails due to a missing entry, this field may specify the DN of the closest existing ancestor.
-
-**Operation Type**: Indicates the type of the LDAP operation
-
-**Referral URLs**: An optional collection of LDAP URLs that direct to other directories or locations within the DIT where the operation might be carried out. All provided URLs should be treated as equally valid for performing the operation.
-
-## 6. The `ldap:Error` type
-
-The `ldap:Error` type represents all the errors related to the LDAP module. This is a subtype of the Ballerina `error` type.
