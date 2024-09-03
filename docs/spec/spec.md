@@ -22,11 +22,11 @@ The conforming implementation of the specification is released and included in t
 2. [LDAP client](#2-ldap-client)
     * 2.1 [Configurations](#21-configurations)
     * 2.2 [Initialization](#22-initialization)
-    * 2.3 [Connection Handling](#23-connection-handling)
+    * 2.3 [Connection handling](#23-connection-handling)
         * 2.3.1 [Close operation](#231-close-operation)
         * 2.3.2 [Connection availability operation](#232-connection-availability-operation)
     * 2.4 [DNs and RDNs](#24-dns-and-rdns)
-    * 2.5 [LDAP Data Types](#25-ldap-data-types)
+    * 2.5 [LDAP data types](#25-ldap-data-types)
         * 2.5.1 [The `ldap:Entry` type](#251-the-ldapentry-type)
         * 2.5.2 [The `ldap:LdapResponse` type](#252-the-ldapldapresponse-type)
         * 2.5.3 [The `ldap:Error` type](#253-the-ldaperror-type)
@@ -78,7 +78,7 @@ The `init` method initializes the `ldap:Client` instance using the parameters `h
 public isolated function init(*ConnectionConfig config) returns Error?;
 ```
 
-### 2.3 Connection Handling
+### 2.3 Connection handling
 
 This section covers the operations related to managing the connection between the LDAP client and the directory server.
 
@@ -109,7 +109,7 @@ The distinguished name (`DN`) of an entry is used to uniquely identify the entry
 
 A `DN` consists of one or more comma-separated components known as relative distinguished names (`RDN`s). Typically, the leftmost component in the `DN` is considered the `RDN` for that entry. [Learn more](https://ldap.com/ldap-dns-and-rdns/).
 
-### 2.5 LDAP Data Types
+### 2.5 LDAP data types
 
 This section introduces the various data types used in the Ballerina LDAP module. These types are used for interacting with the LDAP directory and performing operations.
 
