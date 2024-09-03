@@ -8,7 +8,7 @@ _Edition_: Swan Lake
 
 ## Introduction
 
-This is the specification for the LDAP library of Ballerina language, which provides the capability to efficiently connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing better support for directory-based operations.
+This is the specification for the LDAP library of Ballerina language, which provides the capability to connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing support for directory-based operations.
 
 The LDAP library specification has evolved and may continue to evolve in the future. The released versions of the specification can be found under the relevant Github tag.
 
