@@ -22,10 +22,14 @@ The conforming implementation of the specification is released and included in t
 2. [LDAP client](#2-ldap-client)
     * 2.1 [Configurations](#21-configurations)
     * 2.2 [Initialization](#22-initialization)
-    * 2.3 [DNs and RDNs](#23-dns-and-rdns)
-    * 2.4 [The `ldap:Entry` type](#24-the-ldapentry-type)
-    * 2.5 [The `ldap:LdapResponse` type](#25-the-ldapldapresponse-type)
-    * 2.6 [The `ldap:Error` type](#26-the-ldaperror-type)
+    * 2.3 [Connection Handling](#23-connection-handling)
+        * 2.3.1 [Close operation](#231-close-operation)
+        * 2.3.2 [Connection availability operation](#232-connection-availability-operation)
+    * 2.4 [DNs and RDNs](#24-dns-and-rdns)
+    * 2.5 [LDAP Data Types](#25-ldap-data-types)
+        * 2.5.1 [The `ldap:Entry` type](#251-the-ldapentry-type)
+        * 2.5.2 [The `ldap:LdapResponse` type](#252-the-ldapldapresponse-type)
+        * 2.5.3 [The `ldap:Error` type](#253-the-ldaperror-type)
 3. [Operation types](#3-operation-types)
     * 3.1 [Add operation](#31-add-operation)
     * 3.2 [Modify operation](#32-modify-operation)
@@ -34,8 +38,6 @@ The conforming implementation of the specification is released and included in t
     * 3.5 [Search operation](#35-search-operation)
     * 3.6 [Search with type operation](#36-search-with-type-operation)
     * 3.7 [Delete operation](#37-delete-operation)
-    * 3.8 [Close operation](#38-close-operation)
-    * 3.9 [Connection availability operation](#39-connection-availability-operation)
 
 ## 1. Overview
 
@@ -76,13 +78,42 @@ The `init` method initializes the `ldap:Client` instance using the parameters `h
 public isolated function init(*ConnectionConfig config) returns Error?;
 ```
 
-### 2.3 DNs and RDNs
+### 2.3 Connection Handling
+
+This section covers the operations related to managing the connection between the LDAP client and the directory server.
+
+#### 2.3.1 Close operation
+
+Unbinds from the server and closes the LDAP connection.
+
+```ballerina
+# Unbinds from the server and closes the LDAP connection.
+# 
+remote isolated function close();
+```
+
+#### 2.3.2 Connection availability operation
+
+Determines whether the client is connected to the server.
+
+```ballerina
+# Determines whether the client is connected to the server.
+#
+# + return - A boolean value indicating the connection status
+remote isolated function isConnected() returns boolean;
+```
+
+### 2.4 DNs and RDNs
 
 The distinguished name (`DN`) of an entry is used to uniquely identify the entry and its location within the directory information tree (`DIT`) hierarchy. It's similar to how a file path specifies the location of a file in a filesystem.
 
-A `DN` consists of one or more comma-separated components known as relative distinguished names (`RDN`s). Typically, the leftmost component in the `DN` is considered the `RDN` for that entry. [Learn more](https://ldap.com/ldap-dns-and-rdns/)
+A `DN` consists of one or more comma-separated components known as relative distinguished names (`RDN`s). Typically, the leftmost component in the `DN` is considered the `RDN` for that entry. [Learn more](https://ldap.com/ldap-dns-and-rdns/).
 
-## 2.4 The `ldap:Entry` type
+### 2.5 LDAP Data Types
+
+This section introduces the various data types used in the Ballerina LDAP module. These types are used for interacting with the LDAP directory and performing operations.
+
+## 2.5.1 The `ldap:Entry` type
 
 An `ldap:Entry` is a record that holds information about an object or entity within the DIT. It includes a distinguished name, a set of object classes, and a set of attributes.
 
@@ -94,7 +125,7 @@ public type Entry record{|AttributeType...;|};
 public type AttributeType boolean|int|float|decimal|string|string[];
 ```
 
-## 2.5 The `ldap:LdapResponse` type
+## 2.5.2 The `ldap:LdapResponse` type
 
 The `ldap:LdapResponse` type defines a data structure used to encapsulate common elements found in most LDAP responses.
 
@@ -108,7 +139,7 @@ The `ldap:LdapResponse` type defines a data structure used to encapsulate common
 
 **Referral URLs**: An optional collection of LDAP URLs that direct to other directories or locations within the DIT where the operation might be carried out. All provided URLs should be treated as equally valid for performing the operation.
 
-## 2.6 The `ldap:Error` type
+## 2.5.3 The `ldap:Error` type
 
 The `ldap:Error` type represents all the errors related to the LDAP module. This is a subtype of the Ballerina `error` type.
 
@@ -236,25 +267,4 @@ Removes an entry from a directory server.
 # + dN - The distinguished name of the entry to remove
 # + return - A `ldap:Error` if the operation fails or `ldap:LdapResponse` if successfully removed
 remote isolated function delete(string dN) returns LdapResponse|Error;
-```
-
-### 3.8 Close operation
-
-Unbinds from the server and closes the LDAP connection.
-
-```ballerina
-# Unbinds from the server and closes the LDAP connection.
-# 
-remote isolated function close();
-```
-
-### 3.9 Connection availability operation
-
-Determines whether the client is connected to the server.
-
-```ballerina
-# Determines whether the client is connected to the server.
-#
-# + return - A boolean value indicating the connection status
-remote isolated function isConnected() returns boolean;
 ```
