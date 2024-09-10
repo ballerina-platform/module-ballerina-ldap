@@ -244,7 +244,6 @@ The `ldap:SearchScope` defines the part of the target subtree that should be inc
 
 ```ballerina
 # Scope of the search operation.
-#
 public enum SearchScope {
     BASE,
     ONE,
