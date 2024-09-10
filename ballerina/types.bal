@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Provides a set of configurations to control the behaviours when communicating with a directory server.
+# Provides a set of configurations to connect with a directory server.
 #
 # + hostName - The host name of the Active Directory server
 # + port -  The port of the Active Directory server
@@ -84,7 +84,7 @@ public enum SearchScope {
     ONE,
     # Indicates that the base entry itself and any subordinate entries (to any depth) should be considered
     SUB,
-    # Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in draft-sermersheim-ldap-subordinate-scope
+    # Indicates that any subordinate entries (to any depth) below the entry specified by the base DN should be considered, but the base entry itself should not be considered, as described in [draft-sermersheim-ldap-subordinate-scope](https://docs.ldap.com/specs/draft-sermersheim-ldap-subordinate-scope-02.txt)
     SUBORDINATE_SUBTREE
 };
 
