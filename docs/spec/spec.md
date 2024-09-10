@@ -88,7 +88,6 @@ Unbinds from the server and closes the LDAP connection.
 
 ```ballerina
 # Unbinds from the server and closes the LDAP connection.
-# 
 remote isolated function close();
 ```
 
