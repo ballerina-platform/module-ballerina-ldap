@@ -26,7 +26,6 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
-import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.utils.ValueUtils;
@@ -40,6 +39,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serial;
+import java.util.concurrent.CompletableFuture;
 
 import static io.ballerina.lib.ldap.Client.processAttribute;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
@@ -51,13 +51,13 @@ public class CustomSearchEntryListener implements AsyncSearchResultListener {
 
     @Serial
     private static final long serialVersionUID = 1L;
-    private transient Future future;
+    private transient CompletableFuture<Object> future;
     private transient BArray array;
     private transient BError error;
     private transient BTypedesc typeDesc;
     private final String dN;
 
-    public CustomSearchEntryListener(Future future, BTypedesc typeDesc, String dN) {
+    public CustomSearchEntryListener(CompletableFuture<Object> future, BTypedesc typeDesc, String dN) {
         this.future = future;
         this.array = ValueCreator.createArrayValue((ArrayType) typeDesc.getDescribingType());
         this.dN = dN;
@@ -113,7 +113,7 @@ public class CustomSearchEntryListener implements AsyncSearchResultListener {
         this.error = null;
     }
 
-    public void setFuture(Future future) {
+    public void setFuture(CompletableFuture<Object> future) {
         this.future = future;
     }
 
