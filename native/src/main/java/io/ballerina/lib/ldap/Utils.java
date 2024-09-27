@@ -74,6 +74,9 @@ public final class Utils {
     public static final String LDAP_CONNECTION_CLOSED_ERROR = "LDAP Connection has been closed";
 
     public static BError createError(String message, Throwable throwable) {
+        if (throwable.getCause() instanceof LDAPException ldapException) {
+            return createError(ldapException.getMessage(), ldapException.getCause());
+        }
         BError cause = Objects.isNull(throwable) ? null : ErrorCreator.createError(throwable);
         return ErrorCreator.createError(getModule(), ERROR_TYPE, fromString(message), cause, null);
     }
