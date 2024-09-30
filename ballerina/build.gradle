@@ -49,7 +49,7 @@ ballerina {
     module = packageName
     testCoverageParam = "--code-coverage --coverage-format=xml"
     langVersion = ballerinaLangVersion
-    platform = "java17"
+    platform = "java21"
 }
 
 configurations {

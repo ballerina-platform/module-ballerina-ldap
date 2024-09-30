@@ -19,4 +19,16 @@
 	<Match>
 		<Class name="org.ballerinalang.stdlib.ldap.SslContextTrustManager"/>
 	</Match>
+	<Match>
+		<Class name="io.ballerina.lib.ldap.CustomAsyncResultListener"/>
+		<Bug pattern="EI_EXPOSE_REP2"/>
+	</Match>
+	<Match>
+		<Class name="io.ballerina.lib.ldap.CustomSearchEntryListener"/>
+		<Bug pattern="EI_EXPOSE_REP2,MC_OVERRIDABLE_METHOD_CALL_IN_READ_OBJECT"/>
+	</Match>
+	<Match>
+		<Class name="io.ballerina.lib.ldap.CustomSearchResultListener"/>
+		<Bug pattern="EI_EXPOSE_REP2"/>
+	</Match>
 </FindBugsFilter>

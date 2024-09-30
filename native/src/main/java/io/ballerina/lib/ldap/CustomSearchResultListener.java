@@ -26,7 +26,6 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultReference;
-import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -36,6 +35,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static io.ballerina.lib.ldap.Client.processAttribute;
 import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
@@ -46,12 +46,12 @@ import static io.ballerina.lib.ldap.Utils.ENTRY_NOT_FOUND;
 public class CustomSearchResultListener implements AsyncSearchResultListener {
     @Serial
     private static final long serialVersionUID = 1L;
-    private transient Future future;
+    private transient CompletableFuture<Object> future;
     private transient List<BMap<BString, Object>> references;
     private transient List<BMap<BString, Object>> entries;
     private final String dN;
 
-    public CustomSearchResultListener(Future future, String dN) {
+    public CustomSearchResultListener(CompletableFuture<Object> future, String dN) {
         this.dN = dN;
         this.future = future;
         this.references = new ArrayList<>();
@@ -100,7 +100,7 @@ public class CustomSearchResultListener implements AsyncSearchResultListener {
         this.entries = new ArrayList<>();
     }
 
-    public void setFuture(Future future) {
+    public void setFuture(CompletableFuture<Object> future) {
         this.future = future;
     }
 }
