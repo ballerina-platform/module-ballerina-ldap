@@ -1,0 +1,18 @@
+services:
+  ldap_server:
+    image: osixia/openldap:latest
+    container_name: my-openldap-container
+    environment:
+      LDAP_ORGANISATION: "My Company"
+      LDAP_DOMAIN: "mycompany.com"
+      LDAP_ADMIN_PASSWORD: "adminpassword"
+      LDAP_TLS_CRT_FILENAME: "server.crt"
+      LDAP_TLS_KEY_FILENAME: "server.key"
+      LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
+      LDAP_TLS_VERIFY_CLIENT: try
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - ./certs:/container/service/slapd/assets/certs
+    command: --copy-service
