@@ -38,6 +38,18 @@ modules = [
 
 [[package]]
 org = "ballerina"
+name = "crypto"
+version = "2.7.2"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "time"}
+]
+modules = [
+	{org = "ballerina", packageName = "crypto", moduleName = "crypto"}
+]
+
+[[package]]
+org = "ballerina"
 name = "test"
 version = "0.0.0"
 scope = "testOnly"
