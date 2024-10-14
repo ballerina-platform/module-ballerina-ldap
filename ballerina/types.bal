@@ -14,17 +14,35 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
+
 # Provides a set of configurations to connect with a directory server.
 #
 # + hostName - The host name of the Active Directory server
 # + port -  The port of the Active Directory server
 # + domainName -  The domain name of the Active Directory
 # + password - The password of the Active Directory
+# + clientSecureSocket - Client secure socket configurations
 public type ConnectionConfig record {|
     string hostName;
     int port;
     string domainName;
     string password;
+    ClientSecureSocket clientSecureSocket?;
+|};
+
+
+# Provides configurations for facilitating secure communication with a remote ldap server.
+#
+# + enable - Enable SSL validation
+# + cert - Configurations associated with `crypto:TrustStore` or single certificate file that the client trusts
+# + verifyHostName - Enable/disable host name verification
+# + tlsVersions - The TLS versions to be used
+public type ClientSecureSocket record {|
+    boolean enable = true;
+    crypto:TrustStore|string cert?;
+    boolean verifyHostName = true;
+    string[] tlsVersions = [];
 |};
 
 # LDAP response type.
