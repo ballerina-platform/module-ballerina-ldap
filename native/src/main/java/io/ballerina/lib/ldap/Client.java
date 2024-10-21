@@ -154,11 +154,7 @@ public final class Client {
         Object cert = secureSocketConfig.get(SECURESOCKET_CONFIG_CERT);
         evaluateCertField(cert, sslConfig);
 
-        if (secureSocketConfig.getBooleanValue(VERIFY_HOSTNAME)) {
-            sslConfig.setVerifyHostnames(true);
-        } else {
-            sslConfig.setVerifyHostnames(false);
-        }
+        sslConfig.setVerifyHostnames(secureSocketConfig.getBooleanValue(VERIFY_HOSTNAME));
 
         BArray tlsVersions = (BArray) secureSocketConfig.get(TLS_VERSIONS);
 
