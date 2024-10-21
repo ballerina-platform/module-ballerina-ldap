@@ -210,10 +210,9 @@ public final class Client {
             TrustStoreTrustManager trustStoreManager = new TrustStoreTrustManager(sslConfiguration.getTrustStore(),
                     sslConfiguration.getTrustStorePass().toCharArray(),
                     sslConfiguration.getTLSStoreType(), true);
-            AggregateTrustManager trustManager = new AggregateTrustManager(false,
+            return new AggregateTrustManager(false,
                     JVMDefaultTrustManager.getInstance(),
                     trustStoreManager);
-            return trustManager;
         } else {
             throw new IllegalArgumentException("Unsupported trust store type");
         }
