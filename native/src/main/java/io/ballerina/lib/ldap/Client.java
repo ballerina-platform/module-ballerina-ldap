@@ -96,7 +96,7 @@ public final class Client {
     public static final String OBJECT_SID = "objectSid";
 
     //Socket config
-    private static final BString SECURESOCKET_CONFIG_ENABLE_TLS = StringUtils.fromString("enable");
+    private static final BString SECURE_SOCKET_CONFIG_ENABLE_TLS = StringUtils.fromString("enable");
     private static final BString VERIFY_HOSTNAME = StringUtils.fromString("verifyHostName");
     private static final BString TLS_VERSIONS = StringUtils.fromString("tlsVersions");
     private static final BString SECURESOCKET_CONFIG_TRUSTSTORE_FILE_PATH = StringUtils.fromString("path");
