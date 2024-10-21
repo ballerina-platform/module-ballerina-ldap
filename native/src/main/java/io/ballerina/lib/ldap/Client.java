@@ -121,7 +121,7 @@ public final class Client {
                 SSLUtil sslUtil = new SSLUtil(trustManager);
 
                 if (sslConfig.getTLSVersions().isEmpty()) {
-                    SSLUtil.setDefaultSSLProtocol("TLSv1.2");
+                    SSLUtil.setDefaultSSLProtocol(SSLUtil.SSL_PROTOCOL_TLS_1_2);
                 } else {
                     SSLUtil.setEnabledSSLProtocols(sslConfig.getTLSVersions());
                 }
