@@ -140,10 +140,9 @@ public final class Client {
                 LDAPConnection ldapConnection = new LDAPConnection(hostName, port, domainName, password);
                 ldapClient.addNativeData(NATIVE_CLIENT, ldapConnection);
             }
-        } catch (LDAPException e) {
+        } catch (LDAPException | GeneralSecurityException e) {
             return Utils.createError(e.getMessage(), e);
-        } catch (GeneralSecurityException e) {
-            return Utils.createError(e.getMessage(), e);
+        }
         }
         return null;
     }
