@@ -159,7 +159,7 @@ public final class Client {
         BArray tlsVersions = (BArray) secureSocketConfig.get(TLS_VERSIONS);
 
         if (tlsVersions != null) {
-            List<String> tlsVersionsList =  Arrays.stream(((BArray) tlsVersions).getStringArray())
+            List<String> tlsVersionsList =  Arrays.stream(tlsVersions.getStringArray()).getStringArray())
                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
             sslConfig.setTLSVersions(tlsVersionsList);
         }
