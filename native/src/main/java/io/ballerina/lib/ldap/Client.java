@@ -143,7 +143,6 @@ public final class Client {
         } catch (LDAPException | GeneralSecurityException e) {
             return Utils.createError(e.getMessage(), e);
         }
-        }
         return null;
     }
 
@@ -158,7 +157,7 @@ public final class Client {
         BArray tlsVersions = (BArray) secureSocketConfig.get(TLS_VERSIONS);
 
         if (tlsVersions != null) {
-            List<String> tlsVersionsList =  Arrays.stream(tlsVersions.getStringArray()).getStringArray())
+            List<String> tlsVersionsList =  Arrays.stream(tlsVersions.getStringArray())
                     .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
             sslConfig.setTLSVersions(tlsVersionsList);
         }
@@ -166,7 +165,7 @@ public final class Client {
     }
 
     private static boolean isClientSecurityConfigured(BMap<BString, Object> secureSocketConfig) {
-        return secureSocketConfig.get(Client.SECURESOCKET_CONFIG_ENABLE_TLS) != null;
+        return secureSocketConfig.get(Client.SECURE_SOCKET_CONFIG_ENABLE_TLS) != null;
     }
 
     private static void evaluateCertField(Object cert, SSLConfig sslConfiguration) {
