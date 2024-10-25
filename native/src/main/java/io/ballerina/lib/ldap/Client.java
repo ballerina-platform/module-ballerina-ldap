@@ -114,7 +114,7 @@ public final class Client {
         BMap<BString, Object> secureSocketConfig = (BMap<BString, Object>) config 
                 .getMapValue(CLIENT_SECURE_SOCKET);
         try {
-            if (secureSocketConfig != null && isClientSecurityConfigured(secureSocketConfig)) {
+            if (Objects.nonNull(secureSocketConfig) && isClientSecurityConfigured(secureSocketConfig)) {
                 SSLConfig sslConfig = populateSSLConfig(secureSocketConfig);
                 AggregateTrustManager trustManager = buildAggregatedTrustManager(sslConfig);
 
