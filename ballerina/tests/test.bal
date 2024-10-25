@@ -331,18 +331,13 @@ public function testTlsConnectionWithTrustStore() returns error? {
             }
     };
 
-    Client|Error ldapClient =  new ({
+    Client ldapClient =  check new ({
         port: 636,
         hostName: hostName,
         password: password,
         domainName: domainName,
         clientSecureSocket: clientSecureSocket}
     );
-
-    if ldapClient is Error {
-        test:assertFail("Error when trying to create a client with secure connection." + ldapClient.message());
-    } else {
-        ldapClient->close();
-    }
+    ldapClient->close();
 }
 
