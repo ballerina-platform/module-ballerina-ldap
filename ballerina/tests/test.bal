@@ -284,39 +284,34 @@ public function testSearchWithInvalidType() returns error? {
 @test:Config{}
 public function testTlsConnection() returns error? {
     ClientSecureSocket clientSecureSocket = {
-        cert: "tests/server/certs/server.crt",
+        cert: "tests/resources/server/certs/server.crt",
         enable: true
     };
 
-     Client|Error ldapClient =  new ({
+     Client ldapClient =  check new ({
          port: 636,
-         hostName: hostName,
-         password: password,
-         domainName: domainName,
-         clientSecureSocket: clientSecureSocket}
+         hostName,
+         password,
+         domainName,
+         clientSecureSocket}
     );
 
-    if ldapClient is Error {
-        test:assertFail("Error when trying to create a client with secure connection.");
-    } else {
-         ldapClient->close();
-    }
-    return;
+    ldapClient->close();
 }
 
 @test:Config{}
 public function testTlsConnectionWithInvalidCert() returns error? {
     ClientSecureSocket clientSecureSocket = {
-        cert: "tests/server/certs/invalid.crt",
+        cert: "tests/resources/server/certs/invalid.crt",
         enable: true
     };
 
     Client|Error ldapClient =  new ({
         port: 636,
-        hostName: hostName,
-        password: password,
-        domainName: domainName,
-        clientSecureSocket: clientSecureSocket}
+        hostName,
+        password,
+        domainName,
+        clientSecureSocket}
     );
 
     test:assertTrue(ldapClient is Error);
@@ -326,18 +321,19 @@ public function testTlsConnectionWithInvalidCert() returns error? {
 public function testTlsConnectionWithTrustStore() returns error? {
     ClientSecureSocket clientSecureSocket = {
             cert: {
-                path: "tests/server/certs/truststore.p12",
+                path: "tests/resources/server/certs/truststore.p12",
                 password: "password"
             }
     };
 
     Client ldapClient =  check new ({
         port: 636,
-        hostName: hostName,
-        password: password,
-        domainName: domainName,
-        clientSecureSocket: clientSecureSocket}
+        hostName,
+        password,
+        domainName,
+        clientSecureSocket}
     );
+
     ldapClient->close();
 }
 

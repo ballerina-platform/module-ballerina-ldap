@@ -104,7 +104,7 @@ task startLdapServer() {
             if (!stdOut.toString().contains("my-openldap-container")) {
                 println "Starting LDAP server."
                 exec {
-                    commandLine 'sh', '-c', "docker compose -f $project.projectDir/tests/server/compose.yml up -d"
+                    commandLine 'sh', '-c', "docker compose -f $project.projectDir/tests/resources/server/compose.yml up -d"
                     standardOutput = stdOut
                 }
                 println stdOut.toString()
