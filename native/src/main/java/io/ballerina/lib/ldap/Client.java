@@ -102,6 +102,13 @@ public final class Client {
     private static final BString SECURE_SOCKET_CONFIG_TRUSTSTORE_FILE_PATH = StringUtils.fromString("path");
     private static final BString SECURE_SOCKET_CONFIG_TRUSTSTORE_PASSWORD = StringUtils.fromString("password");
     private static final BString SECURE_SOCKET_CONFIG_CERT = StringUtils.fromString("cert");
+    public static final String PKCS_12 = "PKCS12";
+    public static final String PEM = "PEM";
+    public static final String TRUST_STORE_INITIALIZATION_ERROR = "Error occurred while initializing trust store";
+    public static final String UNSUPPORTED_TRUST_STORE_TYPE_ERROR = "Unsupported trust store type";
+    public static final String EMPTY_TRUST_STORE_FILE_PATH_ERROR = "Truststore file path cannot be empty";
+    public static final String EMPTY_TRUST_STORE_PASSWORD_ERROR = "Truststore password cannot be empty";
+    public static final String EMPTY_CERTIFICATE_FILE_PATH_ERROR = "Certificate file path cannot be empty";
 
     private Client() {
     }
@@ -174,26 +181,26 @@ public final class Client {
             String trustStoreFile = trustStore.getStringValue(SECURE_SOCKET_CONFIG_TRUSTSTORE_FILE_PATH).getValue();
             String trustStorePassword = trustStore.getStringValue(SECURE_SOCKET_CONFIG_TRUSTSTORE_PASSWORD).getValue();
             if (trustStoreFile.isBlank()) {
-                throw new IllegalArgumentException("Truststore file path cannot be empty");
+                throw new IllegalArgumentException(EMPTY_TRUST_STORE_FILE_PATH_ERROR);
             }
             if (trustStorePassword.isBlank()) {
-                throw new IllegalArgumentException("Truststore password cannot be empty");
+                throw new IllegalArgumentException(EMPTY_TRUST_STORE_PASSWORD_ERROR);
             }
             sslConfiguration.setTrustStoreFile(trustStoreFile);
             sslConfiguration.setTrustStorePass(trustStorePassword);
-            sslConfiguration.setTLSStoreType("PKCS12");
+            sslConfiguration.setTLSStoreType(PKCS_12);
         } else {
             String certFile = ((BString) cert).getValue();
             if (certFile.isBlank()) {
-                throw new IllegalArgumentException("Certificate file path cannot be empty");
+                throw new IllegalArgumentException(EMPTY_CERTIFICATE_FILE_PATH_ERROR);
             }
             sslConfiguration.setTrustStoreFile(certFile);
-            sslConfiguration.setTLSStoreType("PEM");
+            sslConfiguration.setTLSStoreType(PEM);
         }
     }
 
     private static AggregateTrustManager buildAggregatedTrustManager(SSLConfig sslConfiguration) {
-        if (sslConfiguration.getTLSStoreType().equals("PEM")) {
+        if (sslConfiguration.getTLSStoreType().equals(PEM)) {
             try {
                 PEMFileTrustManager pemFileTrustManager = new PEMFileTrustManager(
                         sslConfiguration.getTrustStore());
@@ -201,10 +208,9 @@ public final class Client {
                         JVMDefaultTrustManager.getInstance(),
                         pemFileTrustManager);
             } catch (KeyStoreException e) {
-                throw new IllegalArgumentException("Error occurred while initializing trust store"
-                        + e.getMessage());
+                throw new IllegalArgumentException(TRUST_STORE_INITIALIZATION_ERROR + e.getMessage());
             }
-        } else if (sslConfiguration.getTLSStoreType().equals("PKCS12")) {
+        } else if (sslConfiguration.getTLSStoreType().equals(PKCS_12)) {
             TrustStoreTrustManager trustStoreManager = new TrustStoreTrustManager(sslConfiguration.getTrustStore(),
                     sslConfiguration.getTrustStorePass().toCharArray(),
                     sslConfiguration.getTLSStoreType(), true);
@@ -212,7 +218,7 @@ public final class Client {
                     JVMDefaultTrustManager.getInstance(),
                     trustStoreManager);
         } else {
-            throw new IllegalArgumentException("Unsupported trust store type");
+            throw new IllegalArgumentException(UNSUPPORTED_TRUST_STORE_TYPE_ERROR);
         }
     }
 
