@@ -280,3 +280,60 @@ public function testSearchWithInvalidType() returns error? {
    LdapResponse delete = check ldapClient->delete("CN=Test User1,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
 }
+
+@test:Config{}
+public function testTlsConnection() returns error? {
+    ClientSecureSocket clientSecureSocket = {
+        cert: "tests/resources/server/certs/server.crt",
+        enable: true
+    };
+
+     Client ldapClient =  check new ({
+         port: 636,
+         hostName,
+         password,
+         domainName,
+         clientSecureSocket}
+    );
+
+    ldapClient->close();
+}
+
+@test:Config{}
+public function testTlsConnectionWithInvalidCert() returns error? {
+    ClientSecureSocket clientSecureSocket = {
+        cert: "tests/resources/server/certs/invalid.crt",
+        enable: true
+    };
+
+    Client|Error ldapClient =  new ({
+        port: 636,
+        hostName,
+        password,
+        domainName,
+        clientSecureSocket}
+    );
+
+    test:assertTrue(ldapClient is Error);
+}
+
+@test:Config{}
+public function testTlsConnectionWithTrustStore() returns error? {
+    ClientSecureSocket clientSecureSocket = {
+            cert: {
+                path: "tests/resources/server/certs/truststore.p12",
+                password: "password"
+            }
+    };
+
+    Client ldapClient =  check new ({
+        port: 636,
+        hostName,
+        password,
+        domainName,
+        clientSecureSocket}
+    );
+
+    ldapClient->close();
+}
+
