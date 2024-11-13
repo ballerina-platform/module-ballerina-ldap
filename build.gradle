@@ -25,6 +25,8 @@ plugins {
     id "net.researchgate.release"
 }
 
+ext.stdlibCryptoVersion = project.stdlibCryptoVersion
+
 description = 'Ballerina - LDAP'
 
 allprojects {
@@ -74,8 +76,11 @@ subprojects {
         jbalTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
             transitive = false
         }
+
         /* Standard libraries */
         ballerinaStdLibs "io.ballerina.stdlib:io-ballerina:${stdlibIoVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:crypto-ballerina:${stdlibCryptoVersion}"
+        ballerinaStdLibs "io.ballerina.stdlib:time-ballerina:${stdlibTimeVersion}"
     }
 }
 

@@ -24,6 +24,7 @@ import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.DeleteRequest;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.Modification;
@@ -36,9 +37,16 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchResultListener;
 import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.util.Base64;
+import com.unboundid.util.ssl.AggregateTrustManager;
+import com.unboundid.util.ssl.HostNameSSLSocketVerifier;
+import com.unboundid.util.ssl.JVMDefaultTrustManager;
+import com.unboundid.util.ssl.PEMFileTrustManager;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustStoreTrustManager;
+import io.ballerina.lib.ldap.ssl.SSLConfig;
 import io.ballerina.runtime.api.Environment;
-import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.ValueUtils;
@@ -49,6 +57,8 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 
+import java.security.GeneralSecurityException;
+import java.security.KeyStoreException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,12 +87,28 @@ public final class Client {
     public static final BString PORT = StringUtils.fromString("port");
     public static final BString DOMAIN_NAME = StringUtils.fromString("domainName");
     public static final BString PASSWORD = StringUtils.fromString("password");
+    public static final BString CLIENT_SECURE_SOCKET = StringUtils.fromString("clientSecureSocket");
     public static final String NATIVE_CLIENT = "client";
     public static final String LDAP_RESPONSE = "LdapResponse";
     public static final BString REFERRAL = StringUtils.fromString("referral");
     public static final BString OPERATION_TYPE = StringUtils.fromString("operationType");
     public static final String OBJECT_GUID = "objectGUID";
     public static final String OBJECT_SID = "objectSid";
+
+    //Socket config
+    private static final BString SECURE_SOCKET_CONFIG_ENABLE_TLS = StringUtils.fromString("enable");
+    private static final BString VERIFY_HOSTNAME = StringUtils.fromString("verifyHostName");
+    private static final BString TLS_VERSIONS = StringUtils.fromString("tlsVersions");
+    private static final BString SECURE_SOCKET_CONFIG_TRUSTSTORE_FILE_PATH = StringUtils.fromString("path");
+    private static final BString SECURE_SOCKET_CONFIG_TRUSTSTORE_PASSWORD = StringUtils.fromString("password");
+    private static final BString SECURE_SOCKET_CONFIG_CERT = StringUtils.fromString("cert");
+    public static final String PKCS_12 = "PKCS12";
+    public static final String PEM = "PEM";
+    public static final String TRUST_STORE_INITIALIZATION_ERROR = "Error occurred while initializing trust store";
+    public static final String UNSUPPORTED_TRUST_STORE_TYPE_ERROR = "Unsupported trust store type";
+    public static final String EMPTY_TRUST_STORE_FILE_PATH_ERROR = "Truststore file path cannot be empty";
+    public static final String EMPTY_TRUST_STORE_PASSWORD_ERROR = "Truststore password cannot be empty";
+    public static final String EMPTY_CERTIFICATE_FILE_PATH_ERROR = "Certificate file path cannot be empty";
 
     private Client() {
     }
@@ -92,13 +118,108 @@ public final class Client {
         int port = Math.toIntExact(config.getIntValue(PORT));
         String domainName = ((BString) config.get(DOMAIN_NAME)).getValue();
         String password = ((BString) config.get(PASSWORD)).getValue();
+        BMap<BString, Object> secureSocketConfig = (BMap<BString, Object>) config 
+                .getMapValue(CLIENT_SECURE_SOCKET);
         try {
-            LDAPConnection ldapConnection = new LDAPConnection(hostName, port, domainName, password);
-            ldapClient.addNativeData(NATIVE_CLIENT, ldapConnection);
-        } catch (LDAPException e) {
+            if (Objects.nonNull(secureSocketConfig) && isClientSecurityConfigured(secureSocketConfig)) {
+                SSLConfig sslConfig = populateSSLConfig(secureSocketConfig);
+                AggregateTrustManager trustManager = buildAggregatedTrustManager(sslConfig);
+
+                SSLUtil sslUtil = new SSLUtil(trustManager);
+
+                if (sslConfig.getTLSVersions().isEmpty()) {
+                    SSLUtil.setDefaultSSLProtocol(SSLUtil.SSL_PROTOCOL_TLS_1_2);
+                } else {
+                    SSLUtil.setEnabledSSLProtocols(sslConfig.getTLSVersions());
+                }
+
+                LDAPConnectionOptions connectionOptions = new LDAPConnectionOptions();
+
+                connectionOptions.setSSLSocketVerifier(
+                        new HostNameSSLSocketVerifier(sslConfig.getVerifyHostnames()));
+
+                LDAPConnection ldapConnection = new LDAPConnection(sslUtil.createSSLSocketFactory(),
+                        connectionOptions, hostName, port, domainName, password);
+
+                ldapClient.addNativeData(NATIVE_CLIENT, ldapConnection);
+
+            } else {
+                LDAPConnection ldapConnection = new LDAPConnection(hostName, port, domainName, password);
+                ldapClient.addNativeData(NATIVE_CLIENT, ldapConnection);
+            }
+        } catch (LDAPException | GeneralSecurityException e) {
             return Utils.createError(e.getMessage(), e);
         }
         return null;
+    }
+
+    private static SSLConfig populateSSLConfig(BMap<BString, Object> secureSocketConfig) {
+        SSLConfig sslConfig = new SSLConfig();
+
+        Object cert = secureSocketConfig.get(SECURE_SOCKET_CONFIG_CERT);
+        evaluateCertField(cert, sslConfig);
+
+        sslConfig.setVerifyHostnames(secureSocketConfig.getBooleanValue(VERIFY_HOSTNAME));
+
+        BArray tlsVersions = (BArray) secureSocketConfig.get(TLS_VERSIONS);
+
+        if (Objects.nonNull(tlsVersions)) {
+            List<String> tlsVersionsList =  Arrays.stream(tlsVersions.getStringArray())
+                    .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            sslConfig.setTLSVersions(tlsVersionsList);
+        }
+        return sslConfig;
+    }
+
+    private static boolean isClientSecurityConfigured(BMap<BString, Object> secureSocketConfig) {
+        return secureSocketConfig.get(Client.SECURE_SOCKET_CONFIG_ENABLE_TLS) != null;
+    }
+
+    private static void evaluateCertField(Object cert, SSLConfig sslConfiguration) {
+        if (cert instanceof BMap) {
+            BMap<BString, BString> trustStore = (BMap<BString, BString>) cert;
+            String trustStoreFile = trustStore.getStringValue(SECURE_SOCKET_CONFIG_TRUSTSTORE_FILE_PATH).getValue();
+            String trustStorePassword = trustStore.getStringValue(SECURE_SOCKET_CONFIG_TRUSTSTORE_PASSWORD).getValue();
+            if (trustStoreFile.isBlank()) {
+                throw new IllegalArgumentException(EMPTY_TRUST_STORE_FILE_PATH_ERROR);
+            }
+            if (trustStorePassword.isBlank()) {
+                throw new IllegalArgumentException(EMPTY_TRUST_STORE_PASSWORD_ERROR);
+            }
+            sslConfiguration.setTrustStoreFile(trustStoreFile);
+            sslConfiguration.setTrustStorePass(trustStorePassword);
+            sslConfiguration.setTLSStoreType(PKCS_12);
+        } else {
+            String certFile = ((BString) cert).getValue();
+            if (certFile.isBlank()) {
+                throw new IllegalArgumentException(EMPTY_CERTIFICATE_FILE_PATH_ERROR);
+            }
+            sslConfiguration.setTrustStoreFile(certFile);
+            sslConfiguration.setTLSStoreType(PEM);
+        }
+    }
+
+    private static AggregateTrustManager buildAggregatedTrustManager(SSLConfig sslConfiguration) {
+        if (sslConfiguration.getTLSStoreType().equals(PEM)) {
+            try {
+                PEMFileTrustManager pemFileTrustManager = new PEMFileTrustManager(
+                        sslConfiguration.getTrustStore());
+                return new AggregateTrustManager(false,
+                        JVMDefaultTrustManager.getInstance(),
+                        pemFileTrustManager);
+            } catch (KeyStoreException e) {
+                throw new IllegalArgumentException(TRUST_STORE_INITIALIZATION_ERROR + e.getMessage());
+            }
+        } else if (sslConfiguration.getTLSStoreType().equals(PKCS_12)) {
+            TrustStoreTrustManager trustStoreManager = new TrustStoreTrustManager(sslConfiguration.getTrustStore(),
+                    sslConfiguration.getTrustStorePass().toCharArray(),
+                    sslConfiguration.getTLSStoreType(), true);
+            return new AggregateTrustManager(false,
+                    JVMDefaultTrustManager.getInstance(),
+                    trustStoreManager);
+        } else {
+            throw new IllegalArgumentException(UNSUPPORTED_TRUST_STORE_TYPE_ERROR);
+        }
     }
 
     public static Object add(Environment env, BObject ldapClient, BString dN, BMap<BString, Object> entry) {
