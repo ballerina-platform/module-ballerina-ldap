@@ -23,7 +23,8 @@ import com.unboundid.ldap.sdk.AsyncResultListener;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPResult;
 import com.unboundid.ldap.sdk.ResultCode;
-import io.ballerina.runtime.api.Future;
+
+import java.util.concurrent.CompletableFuture;
 
 import static io.ballerina.lib.ldap.Client.generateLdapResponse;
 
@@ -31,9 +32,9 @@ import static io.ballerina.lib.ldap.Client.generateLdapResponse;
  * Callback class to handle asynchronous operations.
  */
 public class CustomAsyncResultListener implements AsyncResultListener {
-    private final Future future;
+    private final CompletableFuture<Object> future;
 
-    public CustomAsyncResultListener(Future future) {
+    public CustomAsyncResultListener(CompletableFuture<Object> future) {
         this.future = future;
     }
 
