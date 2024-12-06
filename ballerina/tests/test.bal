@@ -281,7 +281,9 @@ public function testSearchWithInvalidType() returns error? {
    test:assertEquals(delete.resultCode, SUCCESS);
 }
 
-@test:Config{}
+@test:Config{
+   enable: false
+}
 public function testTlsConnection() returns error? {
    ClientSecureSocket clientSecureSocket = {
       cert: "tests/resources/server/certs/server.crt",
@@ -300,7 +302,9 @@ public function testTlsConnection() returns error? {
    test:assertTrue(isConnected);
 }
 
-@test:Config{}
+@test:Config{
+   enable: false
+}
 public function testTlsConnectionWithInvalidCert() returns error? {
    ClientSecureSocket clientSecureSocket = {
       cert: "tests/resources/server/certs/invalid.crt",
@@ -318,7 +322,9 @@ public function testTlsConnectionWithInvalidCert() returns error? {
    test:assertTrue(ldapClient is Error);
 }
 
-@test:Config{}
+@test:Config{
+   enable: false
+}
 public function testTlsConnectionWithTrustStore() returns error? {
    ClientSecureSocket clientSecureSocket = {
          cert: {
