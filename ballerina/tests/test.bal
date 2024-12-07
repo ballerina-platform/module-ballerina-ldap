@@ -283,57 +283,59 @@ public function testSearchWithInvalidType() returns error? {
 
 @test:Config{}
 public function testTlsConnection() returns error? {
-    ClientSecureSocket clientSecureSocket = {
-        cert: "tests/resources/server/certs/server.crt",
-        enable: true
-    };
+   ClientSecureSocket clientSecureSocket = {
+      cert: "tests/resources/server/certs/server.crt",
+      enable: true
+   };
 
-     Client ldapClient =  check new ({
-         port: 636,
-         hostName,
-         password,
-         domainName,
-         clientSecureSocket}
-    );
+   Client ldapClient =  check new ({
+      port: 636,
+      hostName,
+      password,
+      domainName,
+      clientSecureSocket}
+   );
 
-    ldapClient->close();
+   boolean isConnected = ldapClient->isConnected();
+   test:assertTrue(isConnected);
 }
 
 @test:Config{}
 public function testTlsConnectionWithInvalidCert() returns error? {
-    ClientSecureSocket clientSecureSocket = {
-        cert: "tests/resources/server/certs/invalid.crt",
-        enable: true
-    };
+   ClientSecureSocket clientSecureSocket = {
+      cert: "tests/resources/server/certs/invalid.crt",
+      enable: true
+   };
 
-    Client|Error ldapClient =  new ({
-        port: 636,
-        hostName,
-        password,
-        domainName,
-        clientSecureSocket}
-    );
+   Client|Error ldapClient =  new ({
+      port: 636,
+      hostName,
+      password,
+      domainName,
+      clientSecureSocket}
+   );
 
-    test:assertTrue(ldapClient is Error);
+   test:assertTrue(ldapClient is Error);
 }
 
 @test:Config{}
 public function testTlsConnectionWithTrustStore() returns error? {
-    ClientSecureSocket clientSecureSocket = {
-            cert: {
-                path: "tests/resources/server/certs/truststore.p12",
-                password: "password"
-            }
-    };
+   ClientSecureSocket clientSecureSocket = {
+         cert: {
+               path: "tests/resources/server/certs/truststore.p12",
+               password: "password"
+         }
+   };
 
-    Client ldapClient =  check new ({
-        port: 636,
-        hostName,
-        password,
-        domainName,
-        clientSecureSocket}
-    );
+   Client ldapClient =  check new ({
+      port: 636,
+      hostName,
+      password,
+      domainName,
+      clientSecureSocket}
+   );
 
-    ldapClient->close();
+   boolean isConnected = ldapClient->isConnected();
+   test:assertTrue(isConnected);
 }
 
