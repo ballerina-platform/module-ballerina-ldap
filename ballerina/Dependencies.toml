@@ -10,7 +10,7 @@ distribution-version = "2201.12.0-20250228-201300-8d411a0f"
 [[package]]
 org = "ballerina"
 name = "crypto"
-version = "2.8.0"
+version = "2.9.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "time"}
@@ -65,7 +65,7 @@ scope = "testOnly"
 [[package]]
 org = "ballerina"
 name = "ldap"
-version = "1.2.1"
+version = "1.3.0"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
@@ -92,7 +92,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "time"
-version = "2.6.0"
+version = "2.7.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
