@@ -436,6 +436,9 @@ public final class Client {
         BString attributeName = StringUtils.fromString(attribute.getName());
         if (attribute.needsBase64Encoding()) {
             byte[][] valueByteArrays = attribute.getValueByteArrays();
+            if (valueByteArrays == null || valueByteArrays.length == 0) {
+                return;
+            }
             if (valueByteArrays.length > 1) {
                 String[] encodedValues = encodeAttributeValues(attribute.getName(), valueByteArrays);
                 BString[] stringValues = Arrays.stream(encodedValues)
