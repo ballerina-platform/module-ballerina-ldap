@@ -365,3 +365,28 @@ public function testTlsConnectionWithTrustStore() returns error? {
    boolean isConnected = ldapClient->isConnected();
    test:assertTrue(isConnected);
 }
+
+@test:Config {}
+public function testMultiValueAttributeWithNonAscii() returns error? {
+   Client ldapClient = check validateClient(ldap);
+
+   Entry userWithNonAscii = {
+       "objectClass": ["top", "person"],
+       "sn": "Müller",
+       "cn": "Test User Non-ASCII",
+       "description": ["日本語テスト", "Ελληνικά", "中文测试"]
+   };
+   LdapResponse addResponse = check ldapClient->add("CN=Test User Non-ASCII,dc=mycompany,dc=com", userWithNonAscii);
+   test:assertEquals(addResponse.resultCode, SUCCESS);
+
+   Entry value = check ldapClient->getEntry("CN=Test User Non-ASCII,dc=mycompany,dc=com");
+   anydata description = value["description"];
+   if description !is string[] {
+      test:assertFail("Expected description to be of type string[]");
+   }
+
+   test:assertEquals(description.length(), 3, msg = "Expected 3 description values");
+   
+   LdapResponse delete = check ldapClient->delete("CN=Test User Non-ASCII,dc=mycompany,dc=com");
+   test:assertEquals(delete.resultCode, SUCCESS);
+}
