@@ -323,12 +323,14 @@ public final class Client {
         });
     }
 
-    public static Object getEntry(BObject ldapClient, BString dN, BTypedesc typeParam) {
+    public static Object getEntry(BObject ldapClient, BString dN, Object attributesArray, BTypedesc typeParam) {
         BMap<BString, Object> entry = ValueCreator.createMapValue();
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
             validateConnection(ldapConnection);
-            SearchResultEntry userEntry = ldapConnection.getEntry(dN.getValue());
+            SearchResultEntry userEntry;
+            String[] attributes = getAttributesArray(attributesArray);
+            userEntry = ldapConnection.getEntry(dN.getValue(), attributes);
             if (Objects.isNull(userEntry)) {
                 return Utils.createError(String.format(ENTRY_NOT_FOUND, dN), new LDAPException(NO_SUCH_OBJECT));
             }
@@ -341,7 +343,8 @@ public final class Client {
         }
     }
 
-    public static Object search(Environment env, BObject ldapClient, BString baseDn, BString filter, BString scope) {
+    public static Object search(Environment env, BObject ldapClient, BString baseDn, BString filter, BString scope,
+            Object attributesArray) {
         return env.yieldAndRun(() -> {
             CompletableFuture<Object> future = new CompletableFuture<>();
             try {
@@ -349,8 +352,10 @@ public final class Client {
                 LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
                 validateConnection(ldapConnection);
                 SearchResultListener searchResultListener = new CustomSearchResultListener(future, baseDn.getValue());
-                SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDn.getValue(),
-                        searchScope, filter.getValue());
+                SearchRequest searchRequest;
+                String[] attributes = getAttributesArray(attributesArray);
+                searchRequest = new SearchRequest(searchResultListener, baseDn.getValue(),
+                            searchScope, filter.getValue(), attributes);
                 ldapConnection.asyncSearch(searchRequest);
                 return future.get();
             } catch (LDAPException e) {
@@ -359,6 +364,11 @@ public final class Client {
                 return Utils.createError(e.getMessage(), e);
             }
         });
+    }
+
+    private static String[] getAttributesArray(Object attributes) {
+        return (attributes instanceof BArray attributesArray && !attributesArray.isEmpty()) ?
+                attributesArray.getStringArray() : null;
     }
 
     public static Object searchWithType(Environment env, BObject ldapClient, BString baseDn,
@@ -371,8 +381,10 @@ public final class Client {
                 validateConnection(ldapConnection);
                 SearchResultListener searchResultListener = new CustomSearchEntryListener(future, typeParam,
                         baseDn.getValue());
+
+                String[] attributes = Utils.getAttributesFromEntriesType(typeParam);
                 SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDn.getValue(),
-                        searchScope, filter.getValue());
+                        searchScope, filter.getValue(), attributes);
                 ldapConnection.asyncSearch(searchRequest);
                 return future.get();
             } catch (LDAPException e) {
