@@ -19,8 +19,8 @@ import ballerina/crypto;
 # Provides a set of configurations to connect with a directory server.
 #
 # + hostName - The host name of the Active Directory server
-# + port -  The port of the Active Directory server
-# + domainName -  The domain name of the Active Directory
+# + port - The port of the Active Directory server
+# + domainName - The domain name of the Active Directory
 # + password - The password of the Active Directory
 # + clientSecureSocket - Client secure socket configurations
 public type ConnectionConfig record {|
@@ -30,7 +30,6 @@ public type ConnectionConfig record {|
     string password;
     ClientSecureSocket clientSecureSocket?;
 |};
-
 
 # Provides configurations for facilitating secure communication with a remote ldap server.
 #
@@ -110,7 +109,9 @@ public enum SearchScope {
 public type AttributeType boolean|int|float|decimal|string|string[];
 
 # LDAP entry type.
-public type Entry record{|AttributeType...;|};
+public type Entry record {|
+    AttributeType...;
+|};
 
 # A record for an entry that represents a person.
 #
