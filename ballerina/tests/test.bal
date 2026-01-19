@@ -385,8 +385,7 @@ public function testMultiValueAttributeWithNonAscii() returns error? {
       test:assertFail("Expected description to be of type string[]");
    }
 
-   test:assertEquals(description.length(), 3, msg = "Expected 3 description values");
-   
+   test:assertEquals(description, ["日本語テスト", "Ελληνικά", "中文测试"], "Multi-value attribute with non-ASCII characters did not match expected values");
    LdapResponse delete = check ldapClient->delete("CN=Test User Non-ASCII,dc=mycompany,dc=com");
    test:assertEquals(delete.resultCode, SUCCESS);
 }
