@@ -435,8 +435,16 @@ public final class Client {
     static void processAttribute(Attribute attribute, BMap<BString, Object> entry) {
         BString attributeName = StringUtils.fromString(attribute.getName());
         if (attribute.needsBase64Encoding()) {
-            String readableString = encodeAttributeValue(attribute);
-            entry.put(attributeName, StringUtils.fromString(readableString));
+            byte[][] valueByteArrays = attribute.getValueByteArrays();
+            if (valueByteArrays.length > 1) {
+                String[] encodedValues = encodeAttributeValues(attribute.getName(), valueByteArrays);
+                BString[] stringValues = Arrays.stream(encodedValues)
+                        .map(StringUtils::fromString).toArray(BString[]::new);
+                entry.put(attributeName, ValueCreator.createArrayValue(stringValues));
+            } else {
+                String readableString = encodeAttributeValue(attribute.getName(), valueByteArrays[0]);
+                entry.put(attributeName, StringUtils.fromString(readableString));
+            }
         } else {
             if (attribute.getValues().length > 1) {
                 String[] values = attribute.getValues();
@@ -448,9 +456,14 @@ public final class Client {
         }
     }
 
-    private static String encodeAttributeValue(Attribute attribute) {
-        byte[] valueBytes = attribute.getValueByteArray();
-        return switch (attribute.getName()) {
+    private static String[] encodeAttributeValues(String attributeName, byte[][] valueByteArrays) {
+        return Arrays.stream(valueByteArrays)
+                .map(valueBytes -> encodeAttributeValue(attributeName, valueBytes))
+                .toArray(String[]::new);
+    }
+
+    private static String encodeAttributeValue(String attributeName, byte[] valueBytes) {
+        return switch (attributeName) {
             case OBJECT_GUID -> convertObjectGUIDToString(valueBytes);
             case OBJECT_SID -> convertObjectSidToString(valueBytes);
             default -> Base64.encode(valueBytes);
