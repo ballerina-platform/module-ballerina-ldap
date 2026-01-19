@@ -417,29 +417,28 @@ public function testGetEntryWithSingleAttribute() returns error? {
 }
 
 @test:Config {}
-public function testSearchWithTypeWithSelectiveAttributes() returns error? {
+public function testSearchWithTypeAutoAttributeExtraction() returns error? {
     Client ldapClient = check validateClient(ldap);
     LdapResponse response = check ldapClient->add("CN=Test User6,dc=mycompany,dc=com", user);
     test:assertEquals(response.resultCode, SUCCESS);
 
-    // Search with selective attributes - attributes are automatically extracted from UserConfig type
+    // Validates that searchWithType automatically extracts and retrieves attributes from UserConfig type
     UserConfig[] value = check ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
     test:assertTrue(value.length() > 0);
     test:assertEquals(value[0].sn, "Timothy");
     test:assertTrue(value[0].cn is string);
-    // Only attributes defined in UserConfig type will be retrieved
 
     LdapResponse delete = check ldapClient->delete("CN=Test User6,dc=mycompany,dc=com");
     test:assertEquals(delete.resultCode, SUCCESS);
 }
 
 @test:Config {}
-public function testSearchWithTypeWithAllAttributes() returns error? {
+public function testSearchWithTypeValidateAllFields() returns error? {
     Client ldapClient = check validateClient(ldap);
     LdapResponse response = check ldapClient->add("CN=Test User7,dc=mycompany,dc=com", user);
     test:assertEquals(response.resultCode, SUCCESS);
 
-    // Search with all attributes - attributes are automatically extracted from UserConfig type
+    // Validates that all fields defined in UserConfig type are correctly populated by automatic attribute extraction
     UserConfig[] value = check ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
     test:assertTrue(value.length() > 0);
     test:assertEquals(value[0].sn, "Timothy");
@@ -498,5 +497,90 @@ public function testGetEntryWithInvalidAttribute() returns error? {
     test:assertTrue(value?.cn is ());
 
     LdapResponse delete = check ldapClient->delete("CN=Test User10,dc=mycompany,dc=com");
+    test:assertEquals(delete.resultCode, SUCCESS);
+}
+
+@test:Config {}
+public function testGetEntryWithTypeIntrospection() returns error? {
+    Client ldapClient = check validateClient(ldap);
+    LdapResponse response = check ldapClient->add("CN=Test User11,dc=mycompany,dc=com", user);
+    test:assertEquals(response.resultCode, SUCCESS);
+
+    // Get entry without explicit attributes - should use type introspection to determine attributes
+    UserConfig value = check ldapClient->getEntry("CN=Test User11,dc=mycompany,dc=com");
+    test:assertEquals(value?.sn, "Timothy");
+    test:assertEquals(value?.cn, "Test User11");
+    test:assertEquals(value?.objectClass, ["person", "top"]);
+
+    LdapResponse delete = check ldapClient->delete("CN=Test User11,dc=mycompany,dc=com");
+    test:assertEquals(delete.resultCode, SUCCESS);
+}
+
+@test:Config {}
+public function testSearchWithTypeExplicitAttributes() returns error? {
+    Client ldapClient = check validateClient(ldap);
+    LdapResponse response = check ldapClient->add("CN=Test User12,dc=mycompany,dc=com", user);
+    test:assertEquals(response.resultCode, SUCCESS);
+
+    // Search with explicit attributes parameter in searchWithType - should override type-inferred attributes
+    UserConfig[] value = check ldapClient->searchWithType("dc=mycompany,dc=com", "(cn=Test User12)", SUB, ["sn", "cn"]);
+    test:assertEquals(value.length(), 1);
+    test:assertEquals(value[0].sn, "Timothy");
+    test:assertEquals(value[0].cn, "Test User12");
+    // objectClass should be nil as it was not in the explicit attributes list
+    test:assertTrue(value[0].objectClass is ());
+
+    LdapResponse delete = check ldapClient->delete("CN=Test User12,dc=mycompany,dc=com");
+    test:assertEquals(delete.resultCode, SUCCESS);
+}
+
+@test:Config {}
+public function testGetEntryWithRecordHavingRestField() returns error? {
+    Client ldapClient = check validateClient(ldap);
+    LdapResponse response = check ldapClient->add("CN=Test User13,dc=mycompany,dc=com", user);
+    test:assertEquals(response.resultCode, SUCCESS);
+
+    // Get entry with a record type that has a rest field - should retrieve all attributes
+    Entry value = check ldapClient->getEntry("CN=Test User13,dc=mycompany,dc=com");
+    test:assertEquals(value["sn"], "Timothy");
+    test:assertEquals(value["cn"], "Test User13");
+    test:assertEquals(value["objectClass"], ["person", "top"]);
+
+    LdapResponse delete = check ldapClient->delete("CN=Test User13,dc=mycompany,dc=com");
+    test:assertEquals(delete.resultCode, SUCCESS);
+}
+
+@test:Config {}
+public function testSearchWithEmptyAttributesArray() returns error? {
+    Client ldapClient = check validateClient(ldap);
+    LdapResponse response = check ldapClient->add("CN=Test User14,dc=mycompany,dc=com", user);
+    test:assertEquals(response.resultCode, SUCCESS);
+
+    // Search with empty array should retrieve all attributes
+    SearchResult value = check ldapClient->search("dc=mycompany,dc=com", "(cn=Test User14)", SUB, []);
+    test:assertEquals(value.resultCode, SUCCESS);
+    test:assertTrue((<Entry[]>value.entries).length() > 0);
+    Entry firstEntry = (<Entry[]>value.entries)[0];
+    test:assertEquals(firstEntry["objectClass"], ["person", "top"]);
+
+    LdapResponse delete = check ldapClient->delete("CN=Test User14,dc=mycompany,dc=com");
+    test:assertEquals(delete.resultCode, SUCCESS);
+}
+
+@test:Config {}
+public function testGetEntryExplicitAttributesOverrideType() returns error? {
+    Client ldapClient = check validateClient(ldap);
+    LdapResponse response = check ldapClient->add("CN=Test User15,dc=mycompany,dc=com", user);
+    test:assertEquals(response.resultCode, SUCCESS);
+
+    // Get entry with explicit attributes that differ from UserConfig type fields
+    // Should use explicit attributes and ignore type-inferred attributes
+    UserConfig value = check ldapClient->getEntry("CN=Test User15,dc=mycompany,dc=com", ["cn"]);
+    test:assertEquals(value?.cn, "Test User15");
+    // sn and objectClass should be nil as they were not in the explicit attributes list
+    test:assertTrue(value?.sn is ());
+    test:assertTrue(value?.objectClass is ());
+
+    LdapResponse delete = check ldapClient->delete("CN=Test User15,dc=mycompany,dc=com");
     test:assertEquals(delete.resultCode, SUCCESS);
 }

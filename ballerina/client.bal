@@ -116,10 +116,10 @@ public isolated client class Client {
     # ```
     #
     # + dN - The distinguished name of the entry
-    # + attributes - Optional array of attribute names to retrieve. If not provided, all attributes are retrieved
+    # + attributes - Optional array of attribute names to retrieve. If not provided, attributes are determined based on the target type
     # + targetType - Default parameter use to infer the user specified type
     # + return - An entry result with the given type or else `ldap:Error`
-    remote isolated function getEntry(string dN, string[]? attributes = (), typedesc<anydata> targetType = <>)
+    remote isolated function getEntry(string dN, string[]? attributes = (), typedesc<Entry> targetType = <>)
         returns targetType|Error = @java:Method {
         'class: "io.ballerina.lib.ldap.Client"
     } external;
@@ -133,10 +133,11 @@ public isolated client class Client {
     # + baseDn - The base distinguished name of the entry
     # + filter - The filter to be used in the search
     # + scope - The scope of the search
-    # + targetType - Default parameter use to infer the user specified type. The attributes to retrieve are automatically determined from the record type fields
+    # + attributes - Optional array of attribute names to retrieve. If not provided, attributes are determined based on the target type
+    # + targetType - Default parameter use to infer the user specified type
     # + return - An array of entries with the given type or else `ldap:Error`
     remote isolated function searchWithType(string baseDn, string filter,
-            SearchScope scope, typedesc<record {}[]> targetType = <>)
+            SearchScope scope, string[]? attributes = (), typedesc<record {}[]> targetType = <>)
         returns targetType|Error = @java:Method {
         'class: "io.ballerina.lib.ldap.Client"
     } external;

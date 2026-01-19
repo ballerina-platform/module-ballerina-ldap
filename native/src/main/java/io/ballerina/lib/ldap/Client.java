@@ -330,6 +330,9 @@ public final class Client {
             validateConnection(ldapConnection);
             SearchResultEntry userEntry;
             String[] attributes = getAttributesArray(attributesArray);
+            if (attributes == null) {
+                attributes = Utils.getAttributesFromEntryType(typeParam.getDescribingType());
+            }
             userEntry = ldapConnection.getEntry(dN.getValue(), attributes);
             if (Objects.isNull(userEntry)) {
                 return Utils.createError(String.format(ENTRY_NOT_FOUND, dN), new LDAPException(NO_SUCH_OBJECT));
@@ -372,7 +375,8 @@ public final class Client {
     }
 
     public static Object searchWithType(Environment env, BObject ldapClient, BString baseDn,
-                                        BString filter, BString scope, BTypedesc typeParam) {
+                                        BString filter, BString scope, Object attributesArray, 
+                                        BTypedesc typeParam) {
         return env.yieldAndRun(() -> {
             CompletableFuture<Object> future = new CompletableFuture<>();
             try {
@@ -382,7 +386,10 @@ public final class Client {
                 SearchResultListener searchResultListener = new CustomSearchEntryListener(future, typeParam,
                         baseDn.getValue());
 
-                String[] attributes = Utils.getAttributesFromEntriesType(typeParam);
+                String[] attributes = getAttributesArray(attributesArray);
+                if (attributes == null) {
+                    attributes = Utils.getAttributesFromEntriesType(typeParam);
+                }
                 SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDn.getValue(),
                         searchScope, filter.getValue(), attributes);
                 ldapConnection.asyncSearch(searchRequest);

@@ -240,9 +240,25 @@ public final class Utils {
             return null;
         }
         ArrayType entryArrayType = (ArrayType) entriesType;
-        Type entryType = TypeUtils.getReferredType(entryArrayType.getElementType());
+        return getAttributesFromEntryType(entryArrayType.getElementType());
+    }
+
+    /**
+     * Extracts attribute names from the entry type. The entry type is expected to be a record type.
+     * If the record has a rest field, it is not possible to determine all attribute names. Hence,
+     * null is returned in such cases.
+     * 
+     * @param entryType The Type representing the LDAP entry
+     * @return Array of attribute names, or null if unable to extract
+     */
+    public static String[] getAttributesFromEntryType(Type entryType) {
+        entryType = TypeUtils.getReferredType(entryType);
         if (entryType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            Map<String, Field> fields = ((RecordType) entryType).getFields();
+            RecordType recordType = (RecordType) entryType;
+            if (recordType.getRestFieldType() != null) {
+                return null;
+            }
+            Map<String, Field> fields = recordType.getFields();
             return fields.keySet().toArray(new String[0]);
         }
         return null;

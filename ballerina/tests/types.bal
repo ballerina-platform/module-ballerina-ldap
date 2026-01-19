@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type UserConfig record {
+type UserConfig record {|
     *Person;
     string userPrincipalName?;
     string givenName?;
@@ -37,7 +37,8 @@ type UserConfig record {
     string distinguishedName?;
     string manager?;
     string userAccountControl?;
-};
+    AttributeType...;
+|};
 
 record {|AttributeType...;|} user = {
     "sn": "Timothy",
