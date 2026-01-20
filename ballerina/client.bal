@@ -119,7 +119,7 @@ public isolated client class Client {
     # + attributes - Optional array of attribute names to retrieve. If not provided, attributes are determined based on the target type
     # + targetType - Default parameter use to infer the user specified type
     # + return - An entry result with the given type or else `ldap:Error`
-    remote isolated function getEntry(string dN, string[]? attributes = (), typedesc<Entry> targetType = <>)
+    remote isolated function getEntry(string dN, string[]? attributes = (), typedesc<anydata> targetType = <>)
         returns targetType|Error = @java:Method {
         'class: "io.ballerina.lib.ldap.Client"
     } external;
