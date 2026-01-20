@@ -328,12 +328,11 @@ public final class Client {
         try {
             LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
             validateConnection(ldapConnection);
-            SearchResultEntry userEntry;
             String[] attributes = getAttributesArray(attributesArray);
             if (attributes == null) {
                 attributes = Utils.getAttributesFromEntryType(typeParam.getDescribingType());
             }
-            userEntry = ldapConnection.getEntry(dN.getValue(), attributes);
+            SearchResultEntry userEntry = ldapConnection.getEntry(dN.getValue(), attributes);
             if (Objects.isNull(userEntry)) {
                 return Utils.createError(String.format(ENTRY_NOT_FOUND, dN), new LDAPException(NO_SUCH_OBJECT));
             }
@@ -355,9 +354,8 @@ public final class Client {
                 LDAPConnection ldapConnection = (LDAPConnection) ldapClient.getNativeData(NATIVE_CLIENT);
                 validateConnection(ldapConnection);
                 SearchResultListener searchResultListener = new CustomSearchResultListener(future, baseDn.getValue());
-                SearchRequest searchRequest;
                 String[] attributes = getAttributesArray(attributesArray);
-                searchRequest = new SearchRequest(searchResultListener, baseDn.getValue(),
+                SearchRequest searchRequest = new SearchRequest(searchResultListener, baseDn.getValue(),
                             searchScope, filter.getValue(), attributes);
                 ldapConnection.asyncSearch(searchRequest);
                 return future.get();
