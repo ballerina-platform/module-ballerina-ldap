@@ -423,10 +423,10 @@ public function testSearchWithTypeAutoAttributeExtraction() returns error? {
     test:assertEquals(response.resultCode, SUCCESS);
 
     // Validates that searchWithType automatically extracts and retrieves attributes from UserConfig type
-    UserConfig[] value = check ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
+    record{|string sn; string cn;|}[] value = check ldapClient->searchWithType("dc=mycompany,dc=com", "(sn=Timothy)", SUB);
     test:assertTrue(value.length() > 0);
     test:assertEquals(value[0].sn, "Timothy");
-    test:assertTrue(value[0].cn is string);
+    test:assertEquals(value[0].cn, "Test User6");
 
     LdapResponse delete = check ldapClient->delete("CN=Test User6,dc=mycompany,dc=com");
     test:assertEquals(delete.resultCode, SUCCESS);
@@ -507,10 +507,10 @@ public function testGetEntryWithTypeIntrospection() returns error? {
     test:assertEquals(response.resultCode, SUCCESS);
 
     // Get entry without explicit attributes - should use type introspection to determine attributes
-    UserConfig value = check ldapClient->getEntry("CN=Test User11,dc=mycompany,dc=com");
-    test:assertEquals(value?.sn, "Timothy");
-    test:assertEquals(value?.cn, "Test User11");
-    test:assertEquals(value?.objectClass, ["person", "top"]);
+    record {| string sn; string cn; string[] objectClass;|} value = check ldapClient->getEntry("CN=Test User11,dc=mycompany,dc=com");
+    test:assertEquals(value.sn, "Timothy");
+    test:assertEquals(value.cn, "Test User11");
+    test:assertEquals(value.objectClass, ["person", "top"]);
 
     LdapResponse delete = check ldapClient->delete("CN=Test User11,dc=mycompany,dc=com");
     test:assertEquals(delete.resultCode, SUCCESS);
