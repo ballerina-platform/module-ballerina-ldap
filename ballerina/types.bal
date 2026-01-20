@@ -19,8 +19,8 @@ import ballerina/crypto;
 # Provides a set of configurations to connect with a directory server.
 #
 # + hostName - The host name of the Active Directory server
-# + port - The port of the Active Directory server
-# + domainName - The domain name of the Active Directory
+# + port - The port of the ldap server
+# + domainName - The domain name of the ldap server
 # + password - The password of the Active Directory
 # + clientSecureSocket - Client secure socket configurations
 public type ConnectionConfig record {|
