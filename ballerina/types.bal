@@ -119,14 +119,13 @@ public type Entry record{|AttributeType...;|};
 # + cn - common name of the person
 # + userPassword - password of the person
 # + telephoneNumber - telephone number of the person
-public type Person record {|
+public type Person record {
     string|string[]|ObjectClass|ObjectClass[] objectClass?;
     string sn?;
     string cn?;
     string userPassword?;
     string telephoneNumber?;
-    AttributeType...;
-|};
+};
 
 # Standard values for ObjectClass attribute type.
 public enum ObjectClass {
