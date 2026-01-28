@@ -27,12 +27,17 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -218,5 +223,44 @@ public final class Utils {
                 objectGUID[7], objectGUID[6],
                 objectGUID[8], objectGUID[9],
                 objectGUID[10], objectGUID[11], objectGUID[12], objectGUID[13], objectGUID[14], objectGUID[15]);
+    }
+
+    /**
+     * Extracts attribute names from the type of entries to use for selective LDAP
+     * attribute retrieval.
+     * The entries type is expected to be an array of records. The record represents
+     * the LDAP entry structure.
+     *
+     * @param entriesTypeDesc The BTypedesc containing the type of entries
+     * @return Array of attribute names, or null if unable to extract
+     */
+    public static String[] getAttributesFromEntriesType(BTypedesc entriesTypeDesc) {
+        Type entriesType = TypeUtils.getReferredType(entriesTypeDesc.getDescribingType());
+        if (entriesType.getTag() != TypeTags.ARRAY_TAG) {
+            return null;
+        }
+        ArrayType entryArrayType = (ArrayType) entriesType;
+        return getAttributesFromEntryType(entryArrayType.getElementType());
+    }
+
+    /**
+     * Extracts attribute names from the entry type. The entry type is expected to be a record type.
+     * If the record has a rest field, it is not possible to determine all attribute names. Hence,
+     * null is returned in such cases.
+     * 
+     * @param entryType The Type representing the LDAP entry
+     * @return Array of attribute names, or null if unable to extract
+     */
+    public static String[] getAttributesFromEntryType(Type entryType) {
+        entryType = TypeUtils.getReferredType(entryType);
+        if (entryType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            RecordType recordType = (RecordType) entryType;
+            if (recordType.getRestFieldType() != null) {
+                return null;
+            }
+            Map<String, Field> fields = recordType.getFields();
+            return fields.keySet().toArray(new String[0]);
+        }
+        return null;
     }
 }
