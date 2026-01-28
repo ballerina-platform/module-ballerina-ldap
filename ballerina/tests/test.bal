@@ -582,6 +582,10 @@ public function testGetEntryExplicitAttributesOverrideType() returns error? {
     test:assertTrue(value?.objectClass is ());
 
     LdapResponse delete = check ldapClient->delete("CN=Test User15,dc=mycompany,dc=com");
+    test:assertEquals(delete.resultCode, SUCCESS);
+}
+
+@test:Config {}
 public function testMultiValueAttributeWithNonAscii() returns error? {
     Client ldapClient = check validateClient(ldap);
 
