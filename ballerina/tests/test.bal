@@ -582,5 +582,27 @@ public function testGetEntryExplicitAttributesOverrideType() returns error? {
     test:assertTrue(value?.objectClass is ());
 
     LdapResponse delete = check ldapClient->delete("CN=Test User15,dc=mycompany,dc=com");
+public function testMultiValueAttributeWithNonAscii() returns error? {
+    Client ldapClient = check validateClient(ldap);
+
+    Entry userWithNonAscii = {
+        "objectClass": ["top", "person"],
+        "sn": "Müller",
+        "cn": "Test User Non-ASCII",
+        "description": ["日本語テスト", "Ελληνικά", "中文测试"]
+    };
+    LdapResponse addResponse = check ldapClient->add("CN=Test User Non-ASCII,dc=mycompany,dc=com", userWithNonAscii);
+    test:assertEquals(addResponse.resultCode, SUCCESS);
+
+    Entry value = check ldapClient->getEntry("CN=Test User Non-ASCII,dc=mycompany,dc=com");
+    anydata description = value["description"];
+    if description !is string[] {
+        test:assertFail("Expected description to be of type string[]");
+    }
+
+    // Expected descriptions are Base64 encoded values
+    string[] expectedDescriptions = ["5pel5pys6Kqe44OG44K544OI", "zpXOu867zrfOvc65zrrOrA==", "5Lit5paH5rWL6K+V"];
+    test:assertEquals(description, expectedDescriptions, "Multi-value attribute with non-ASCII characters did not match expected values");
+    LdapResponse delete = check ldapClient->delete("CN=Test User Non-ASCII,dc=mycompany,dc=com");
     test:assertEquals(delete.resultCode, SUCCESS);
 }
