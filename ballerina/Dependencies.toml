@@ -5,7 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.12.0"
+distribution-version = "2201.14.0-SNAPSHOT"
 
 [[package]]
 org = "ballerina"
@@ -65,7 +65,7 @@ scope = "testOnly"
 [[package]]
 org = "ballerina"
 name = "ldap"
-version = "1.4.0"
+version = "1.4.1"
 dependencies = [
 	{org = "ballerina", name = "crypto"},
 	{org = "ballerina", name = "jballerina.java"},
