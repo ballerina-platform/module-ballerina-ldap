@@ -20,7 +20,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
     id 'com.github.spotbugs'
-    id "com.github.johnrengelman.shadow"
+    id "com.gradleup.shadow"
     id "de.undercouch.download"
     id "net.researchgate.release"
 }
@@ -67,6 +67,13 @@ allprojects {
 }
 
 subprojects {
+    plugins.withId('java') {
+        java {
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(25)
+            }
+        }
+    }
     configurations {
         ballerinaStdLibs
         jbalTools
@@ -84,7 +91,7 @@ subprojects {
     }
 }
 
-task build {
+tasks.named('build') {
     dependsOn(":ldap-native:build")
     dependsOn(":ldap-ballerina:build")
     dependsOn(":ldap-examples:build")
