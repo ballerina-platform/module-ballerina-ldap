@@ -7,18 +7,18 @@ export=["ldap"]
 keywords = ["ldap"]
 repository = "https://github.com/ballerina-platform/module-ballerina-ldap"
 license = ["Apache-2.0"]
-distribution = "2201.14.0"
+distribution = "2201.12.0"
 
-[platform.java25]
+[platform.java21]
 graalvmCompatible = true
 
-[[platform.java25.dependency]]
+[[platform.java21.dependency]]
 groupId = "io.ballerina.lib"
 artifactId = "ldap-native"
 version = "@project.version@"
 path = "../native/build/libs/ldap-native-@project.version@.jar"
 
-[[platform.java25.dependency]]
+[[platform.java21.dependency]]
 groupId = "com.unboundid"
 artifactId = "unboundid-ldapsdk"
 version = "@unboundIdLdap.version@"
