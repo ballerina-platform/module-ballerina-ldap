@@ -2,7 +2,7 @@
 
 This module provides the capability to connect, authenticate, and interact with LDAP (Lightweight Directory Access Protocol) directory servers, supporting authentication, authorization, and directory-based operations such as searching, adding, and modifying entries.
 
-## Key Features
+### Key Features
 
 - Connect and authenticate to LDAP directory servers
 - Add, modify, and delete directory entries
