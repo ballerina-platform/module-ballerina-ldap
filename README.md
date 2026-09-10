@@ -7,9 +7,9 @@
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerina-ldap.svg)](https://github.com/ballerina-platform/module-ballerina-ldap/commits/master)
 [![Github issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-standard-library/module/ldap.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-standard-library/labels/module%ldap)
 
-LDAP (Lightweight Directory Access Protocol) is a vendor-neutral software protocol for accessing and maintaining distributed directory information services. It allows users to locate organizations, individuals, and other resources such as files and devices in a network. LDAP is used in various applications for directory-based authentication and authorization.
+## Overview
 
-The Ballerina LDAP module provides the capability to efficiently connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing better support for directory-based operations.
+This module provides the capability to connect, authenticate, and interact with LDAP (Lightweight Directory Access Protocol) directory servers, supporting authentication, authorization, and directory-based operations such as searching, adding, and modifying entries.
 
 ## Client
 
@@ -175,7 +175,7 @@ Execute the commands below to build from the source.
 
 ## Contributing to Ballerina
 
-As an open source project, Ballerina welcomes contributions from the community.
+As an open-source project, Ballerina welcomes contributions from the community.
 
 For more information, go to the [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md).
 

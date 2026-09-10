@@ -1,8 +1,13 @@
 ## Overview
 
-LDAP (Lightweight Directory Access Protocol) is a vendor-neutral software protocol for accessing and maintaining distributed directory information services. It allows users to locate organizations, individuals, and other resources such as files and devices in a network. LDAP is used in various applications for directory-based authentication and authorization.
+This module provides the capability to connect, authenticate, and interact with LDAP (Lightweight Directory Access Protocol) directory servers, supporting authentication, authorization, and directory-based operations such as searching, adding, and modifying entries.
 
-The Ballerina LDAP module provides the capability to efficiently connect, authenticate, and interact with directory servers. It allows users to perform operations such as searching for entries, and modifying entries in an LDAP directory, providing better support for directory-based operations.
+### Key Features
+
+- Connect and authenticate to LDAP directory servers
+- Add, modify, and delete directory entries
+- Search directory entries with configurable search scope
+- Compare attribute values and rename entries via `modifyDN`
 
 ## Client
 
