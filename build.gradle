@@ -34,6 +34,9 @@ allprojects {
     version = project.version
 
     apply plugin: 'jacoco'
+    jacoco {
+        toolVersion = jacocoVersion
+    }
     apply plugin: 'maven-publish'
 
     repositories {
@@ -84,7 +87,7 @@ subprojects {
     }
 }
 
-task build {
+tasks.named('build') {
     dependsOn(":ldap-native:build")
     dependsOn(":ldap-ballerina:build")
     dependsOn(":ldap-examples:build")
