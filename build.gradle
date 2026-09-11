@@ -34,6 +34,9 @@ allprojects {
     version = project.version
 
     apply plugin: 'jacoco'
+    jacoco {
+        toolVersion = jacocoVersion
+    }
     apply plugin: 'maven-publish'
 
     repositories {
@@ -84,10 +87,20 @@ subprojects {
     }
 }
 
-task build {
-    dependsOn(":ldap-native:build")
-    dependsOn(":ldap-ballerina:build")
-    dependsOn(":ldap-examples:build")
+if (tasks.names.contains('build')) {
+    tasks.named('build') {
+        dependsOn(":ldap-native:build")
+        dependsOn(":ldap-ballerina:build")
+        dependsOn(":ldap-examples:build")
+
+    }
+} else {
+    tasks.register('build') {
+        dependsOn(":ldap-native:build")
+        dependsOn(":ldap-ballerina:build")
+        dependsOn(":ldap-examples:build")
+
+    }
 }
 
 def moduleVersion = project.version.replace("-SNAPSHOT", "")
