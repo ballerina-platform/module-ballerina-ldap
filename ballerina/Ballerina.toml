@@ -6,6 +6,7 @@ authors = ["Ballerina"]
 export=["ldap"]
 keywords = ["ldap", "Type/Library", "Area/Built-in", "Area/Security & Identity", "Name/LDAP"]
 repository = "https://github.com/ballerina-platform/module-ballerina-ldap"
+icon = "icon.png"
 license = ["Apache-2.0"]
 distribution = "2201.12.0"
 
