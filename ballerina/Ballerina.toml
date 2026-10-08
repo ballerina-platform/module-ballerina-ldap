@@ -16,8 +16,8 @@ graalvmCompatible = true
 [[platform.java21.dependency]]
 groupId = "io.ballerina.lib"
 artifactId = "ldap-native"
-version = "1.4.2-SNAPSHOT"
-path = "../native/build/libs/ldap-native-1.4.2-SNAPSHOT.jar"
+version = "1.4.2"
+path = "../native/build/libs/ldap-native-1.4.2.jar"
 
 [[platform.java21.dependency]]
 groupId = "com.unboundid"
